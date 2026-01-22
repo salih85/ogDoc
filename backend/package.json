@@ -1,0 +1,16 @@
+{
+  "name": "blogify-backend",
+  "version": "1.0.0",
+  "description": "backend for blogify a blog creating web application which uses custom library for working",
+  "license": "ISC",
+  "author": "shamil",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "nodemon index"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "mongoose": "^9.1.5"
+  }
+}
