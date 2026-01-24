@@ -51,19 +51,19 @@ export const Sidebar = () => {
         <CNavTitle className='!text-white'>BLOGIFY</CNavTitle>
 
         <CNavItem>
-          <NavLink to="/home" className="nav-link">
+          <NavLink to="/home" className="nav-link text-white">
             <CIcon customClassName="nav-icon" icon={cilHome} /> Home
           </NavLink>
         </CNavItem>
 
         <CNavItem>
-          <NavLink to="/create" className="nav-link">
+          <NavLink to="/create" className="nav-link text-white">
             <CIcon customClassName="nav-icon" icon={cilPencil} /> Compose
           </NavLink>
         </CNavItem>
 
         <CNavItem>
-          <NavLink to="/viewPost" className="nav-link">
+          <NavLink to="/viewPost" className="nav-link text-white">
             <CIcon customClassName="nav-icon" icon={cilBold} /> View Blog
           </NavLink>
         </CNavItem>
