@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react";
 import {
   CSidebar,
   CSidebarBrand,
@@ -6,24 +6,49 @@ import {
   CSidebarNav,
   CNavItem,
   CNavTitle,
-} from '@coreui/react'
+} from "@coreui/react";
 
-import CIcon from '@coreui/icons-react'
-// 1. Import the Logout icon
-import { cilHome, cilPencil, cilFootball, cilBold, cilAccountLogout } from '@coreui/icons'
-import { NavLink } from 'react-router-dom' 
+import CIcon from "@coreui/icons-react";
+import {
+  cilHome,
+  cilPencil,
+  cilBold,
+  cilAccountLogout,
+} from "@coreui/icons";
+
+import { NavLink, useNavigate } from "react-router-dom";
+import api from "../api/axios"; // import axios instance
 
 export const Sidebar = () => {
+  const navigate = useNavigate();
+
+  // DEFINE LOGOUT HANDLER HERE
+  const handleLogout = async (e) => {
+    e.preventDefault(); // stop NavLink default behavior
+
+    try {
+      await api.post("/api/auth/logout"); // clears cookie
+      navigate("/login", { replace: true }); // redirect
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
+  };
+
   return (
-    <CSidebar className="border-end h-screen bg-slate-400" unfoldable>
+  <CSidebar className="
+  h-screen
+  bg-white dark:!bg-slate-900
+  border-r border-slate-200 dark:border-slate-800
+"unfoldable>
+
       <CSidebarHeader className="border-bottom">
         <CSidebarBrand>
-            <CIcon icon={cilFootball} height={32} />
+          <img src="/images/Logo.png" alt="Blogify" />
         </CSidebarBrand>
       </CSidebarHeader>
 
       <CSidebarNav>
-        <CNavTitle>BLOGIFY</CNavTitle>
+        <CNavTitle className='!text-white'>BLOGIFY</CNavTitle>
 
         <CNavItem>
           <NavLink to="/home" className="nav-link">
@@ -43,19 +68,23 @@ export const Sidebar = () => {
           </NavLink>
         </CNavItem>
 
-        {/* THE LOGOUT BUTTON
-           1. mt-auto: Pushes this item to the very bottom of the sidebar.
-           2. text-danger: Makes the text and icon red.
-        */}
+        {/* 🔴 LOGOUT BUTTON */}
         <CNavItem className="mt-auto">
-          <NavLink to="/login" className="nav-link text-danger">
-            <CIcon customClassName="nav-icon text-danger" icon={cilAccountLogout} /> Logout
+          <NavLink
+            to="#"
+            onClick={handleLogout}
+            className="nav-link text-danger"
+          >
+            <CIcon
+              customClassName="nav-icon text-danger"
+              icon={cilAccountLogout}
+            />{" "}
+            Logout
           </NavLink>
         </CNavItem>
-
       </CSidebarNav>
     </CSidebar>
-  )
-}
+  );
+};
 
-export default Sidebar
+export default Sidebar;

@@ -1,5 +1,5 @@
 import isHotkey from 'is-hotkey'
-import React, { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Editor, Node, Transforms, createEditor } from 'slate'
 import { withHistory } from 'slate-history'
 import { Editable, Slate, useSlate, withReact } from 'slate-react'
@@ -55,12 +55,13 @@ const initialValue = [
 
 // --- MAIN COMPONENT ---
 const CreatePost = () => {
+  
   // 1. Local state to track changes for the Save button
   const [value, setValue] = useState(initialValue)
 
   const [title, setTitle] = useState('')
 
-  
+
   const renderElement = useCallback(props => <Element {...props} />, [])
   const renderLeaf = useCallback(props => <Leaf {...props} />, [])
   const editor = useMemo(() => withHistory(withReact(createEditor())), [])
@@ -69,27 +70,24 @@ const CreatePost = () => {
 
 const handleSave = async () => {
   try {
-    const res = await axios.post(
-      'http://localhost:3000/api/postblog',
-      {
-        title,
-        content: value
-      }
-    )
+    const res = await api.post("/api/blog/postblog", {
+      title,
+      content: value
+    });
 
-    alert('Blog published 🎉')
-    console.log(res.data)
-
+    alert("Blog published 🎉");
+    console.log(res.data);
   } catch (error) {
-    console.error(error)
-    alert('Failed to publish blog ❌')
+    console.error(error);
+    alert("You must be logged in to post ❌");
   }
-}
+};
+
 
 
   return (
     <div className="max-w-4xl mx-auto my-10 border rounded-xl shadow-lg bg-white overflow-hidden">
-      
+
       {/* Header with Save Button */}
       <div className="flex justify-between items-center px-6 py-4 border-b bg-gray-50">
         <h2 className="text-xl font-semibold text-gray-700">Write New Post</h2>
@@ -101,17 +99,17 @@ const handleSave = async () => {
         </button>
       </div>
 
-<input
-  type="text"
-  placeholder="Post title"
-  value={title}
-  onChange={e => setTitle(e.target.value)}
-  className="w-full px-4 py-3 text-xl font-semibold border-b focus:outline-none"
-/>
+      <input
+        type="text"
+        placeholder="Post title"
+        value={title}
+        onChange={e => setTitle(e.target.value)}
+        className="w-full px-4 py-3 text-xl font-semibold border-b focus:outline-none"
+      />
 
       {/* Editor */}
-      <Slate 
-        editor={editor} 
+      <Slate
+        editor={editor}
         initialValue={initialValue} // <--- FIXED: Must use 'initialValue' prop
         onChange={newValue => setValue(newValue)} // Updates local state
       >
@@ -154,6 +152,7 @@ const handleSave = async () => {
     </div>
   )
 }
+
 
 // --- HELPER FUNCTIONS ---
 

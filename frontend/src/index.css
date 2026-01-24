@@ -1,1 +1,15 @@
 @import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui;
+  --font-serif: "Source Serif 4", ui-serif, Georgia;
+}
+
+/* Add this to force Tailwind to recognize the .dark class */
+@variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  html {
+    @apply font-sans antialiased;
+  }
+}
