@@ -78,11 +78,10 @@ export default function HomeFeed() {
     const fetchPosts = async () => {
       try {
         const res = await api.get('/api/blog/user-blogs');
-        console.log("API Response:", res.data); // Debugging help
         
         // 3. Update state (assuming your data is in res.data or res.data.blogs)
         // Adjust 'res.data' based on your actual API response structure
-        setPosts(res.data); 
+        setPosts(res.data.blogs); 
       } catch (e) {
         console.error("Error fetching posts:", e);
       }
@@ -153,10 +152,10 @@ export default function HomeFeed() {
         </header>
 
         <div className="grid grid-cols-3 gap-1">
-          {dummyPosts.map((post) => (
-            <Link 
-              key={post.id} 
-              to={`/view/${post.slug}`}
+          {posts.map((post) => (
+            <a 
+              key={post._id} 
+              href={`https://shamil-tp.github.io/blog-Rendering-Library/?slug=${post.slug}`}
               className="group block relative p-3 rounded-[1rem] border border-slate-200/60 dark:border-slate-800/50 
                          bg-slate-100/50 dark:bg-[#1e293b]/30 hover:bg-white dark:hover:bg-[#1e293b]/60
                          transition-all duration-300 w-[300px] mb-3"
@@ -172,17 +171,25 @@ export default function HomeFeed() {
                     </h3>
                   </div>
                   <div className="text-[10px] font-bold text-slate-300 dark:text-slate-600 uppercase tracking-widest pt-5">
-                    {post.timeOfCreation}
+                    {new Date(post.createdAt).toLocaleTimeString('en-US', {
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: true
+})}
                   </div>
                 </div>
 
                 <div className="flex items-center gap-4 text-xs font-medium text-slate-400 uppercase tracking-wider">
-                  <span className="text-slate-600 dark:text-slate-500">{post.authorName}</span>
+                  <span className="text-slate-600 dark:text-slate-500">{post.author.name}</span>
                   <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
-                  <span>{post.dateOfCreation}</span>
+                  <span>{new Date(post.createdAt).toLocaleDateString('en-US', {
+  month: 'short',
+  day: 'numeric', 
+  year: 'numeric'
+}).toUpperCase()}</span>
                 </div>
               </div>
-            </Link>
+            </a>
           ))}
         </div>
       </main>

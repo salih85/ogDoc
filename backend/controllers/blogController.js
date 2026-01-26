@@ -68,7 +68,11 @@ exports.getUserBlogs = async (req,res)=>{
     if(!userId){
       return res.status(401).json({message:'user not found'})
     }
-    const userBlogs = await Blog.find()
+    const userBlogs = await Blog.find({author:userId}).populate('author','name')
+    if (!userBlogs){
+      return res.status(401).json({message:"no blogs found"})
+    }
+    return res.status(200).json({message:'blogs found',success:true,blogs:userBlogs})
   }catch(e){
     console.log('error while finding from db')
     console.log(e)
