@@ -3,7 +3,7 @@ import { useCallback, useMemo, useState, useEffect } from 'react'
 import { Editor, Node, Transforms, createEditor } from 'slate'
 import { withHistory } from 'slate-history'
 import { Editable, Slate, useSlate, withReact } from 'slate-react'
-import axios from 'axios'
+import axios from '../api/axios'
 
 // --- CONSTANTS ---
 const HOTKEYS = {
@@ -92,6 +92,7 @@ const CreatePost = () => {
       alert("Blog published");
     } catch (error) {
       alert("You must be logged in to post");
+      console.log(error)
     }
   };
 
@@ -270,7 +271,7 @@ const Leaf = ({ attributes, children, leaf }) => {
         // If no special formatting, force the standard text color
         // Light Mode: text-slate-600
         // Dark Mode: text-slate-300 (Softer than slate-100)
-        !leaf.bold && !leaf.code ? "text-slate-600 dark:text-slate-300" : ""
+        !leaf.bold && !leaf.code ? "text-slate-600 dark:text-slate-800" : ""
       } 
       {...attributes}
     >
