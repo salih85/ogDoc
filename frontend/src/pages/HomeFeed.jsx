@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import api from '../api/axios'
 
 const dummyPosts = [
   {
@@ -69,6 +70,29 @@ const dummyPosts = [
 ];
 
 export default function HomeFeed() {
+  
+  const [posts, setPosts] = useState([]); 
+
+  useEffect(() => {
+    // 2. Define the async function
+    const fetchPosts = async () => {
+      try {
+        const res = await api.get('/api/blog/user-blogs');
+        console.log("API Response:", res.data); // Debugging help
+        
+        // 3. Update state (assuming your data is in res.data or res.data.blogs)
+        // Adjust 'res.data' based on your actual API response structure
+        setPosts(res.data); 
+      } catch (e) {
+        console.error("Error fetching posts:", e);
+      }
+    };
+
+    // 4. ACTUALLY CALL THE FUNCTION
+    fetchPosts(); 
+  }, []);
+
+
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("theme") === "dark" ||
