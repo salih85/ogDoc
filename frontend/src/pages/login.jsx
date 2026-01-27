@@ -1,52 +1,88 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../css/login.css";
 
 function Login() {
   const navigate = useNavigate();
-
   const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+  const [isDark, setIsDark] = useState(
+    document.documentElement.classList.contains("dark")
+  );
 
   useEffect(() => {
     if (!window.google) return;
 
     window.google.accounts.id.initialize({
-      client_id: GOOGLE_CLIENT_ID, // ✅ from env
+      client_id: GOOGLE_CLIENT_ID,
       callback: handleCredentialLogin,
     });
 
     window.google.accounts.id.renderButton(
       document.getElementById("googleSignInDiv"),
       {
-        theme: "filled_black",
+        theme: isDark ? "filled_black" : "outline", 
         size: "large",
-        shape: "pill",
+        shape: "pill", // ✅ Restored the rounded pill shape
         width: "280",
       }
     );
-  }, []);
+  }, [isDark]);
 
   const handleCredentialLogin = async (response) => {
     const res = await fetch("http://localhost:3000/api/auth/google", {
       method: "POST",
-      credentials: "include", // ✅ cookie support
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token: response.credential }),
     });
 
     const data = await res.json();
-
     if (data.success) {
       navigate("/home", { replace: true });
     }
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <h1 className="login-title">Welcome Back</h1>
-        <p className="login-subtitle">Please sign in to continue</p>
-        <div id="googleSignInDiv"></div>
+    <div className="min-h-screen flex items-center justify-center bg-slate-300 dark:bg-[#0f172a] transition-colors duration-500 font-['Inter',_sans-serif]">
+      <style>
+        {`
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Outfit:wght@700;800&display=swap');
+          
+          /* Custom override to ensure the Google iframe aligns with our Slate theme */
+          #googleSignInDiv iframe {
+            border-radius: 9999px !important;
+          }
+        `}
+      </style>
+
+      <div className="max-w-md w-full mx-6 p-[1px] bg-slate-200 dark:bg-slate-800 rounded-2xl">
+        <div className="bg-slate-200 dark:bg-slate-800 rounded-2xl p-10 py-14 shadow-2xl shadow-slate-200/50 dark:shadow-none text-center">
+          
+          <h1 className="font-['Outfit',_sans-serif] text-3xl font-bold !text-slate-900 dark:!text-slate-300">
+            Welcome Back
+          </h1>
+          
+          <p className="text-slate-600 dark:text-slate-400 text-sm mb-12">
+            Continue to <span className="font-semibold text-slate-400">Blogify</span>
+          </p>
+
+          <div className="flex justify-center">
+            {/* The Pill Shape is defined in the useEffect renderButton config */}
+            <div 
+              id="googleSignInDiv" 
+              className="hover:opacity-90 transition-opacity"
+            ></div>
+          </div>
+
+          <div className="mt-12 pt-8 border-t border-slate-100 dark:border-slate-700/50">
+            <button 
+              onClick={() => navigate("/")}
+              className="text-[10px] uppercase tracking-[0.2em] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+            >
+              Back to Start
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

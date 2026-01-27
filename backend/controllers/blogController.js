@@ -3,17 +3,24 @@ const slugify = require('slugify')
 const { nanoid } = require('nanoid')
 
 exports.addBlog = async (req, res) => {
-  try {
-    const { title, content } = req.body
+  const { title, content } = req.body
 
     if (!title || !content) {
       return res.status(400).json({ message: 'Missing fields' })
     }
+
+    const userId = req.user._id
+    if(!userId){
+      return res.status(401).json({message:'user not found in db'})
+    }
+
     // create readable + unique slug
     const baseSlug = slugify(title, { lower: true, strict: true })
     const uniqueSlug = `${baseSlug}-${nanoid(6)}`
-
+  
+  try {
     const blog = await Blog.create({
+      author:userId,
       title,
       slug: uniqueSlug,
       content
@@ -55,3 +62,20 @@ exports.getBlog = async (req, res) => {
 }
 
 
+exports.getUserBlogs = async (req,res)=>{
+  try{
+    const userId = req.user._id
+    if(!userId){
+      return res.status(401).json({message:'user not found'})
+    }
+    const userBlogs = await Blog.find({author:userId}).populate('author','name')
+    if (!userBlogs){
+      return res.status(401).json({message:"no blogs found"})
+    }
+    return res.status(200).json({message:'blogs found',success:true,blogs:userBlogs})
+  }catch(e){
+    console.log('error while finding from db')
+    console.log(e)
+    return res.status(501).json({message:'error from backend',error:e})
+  }
+}
