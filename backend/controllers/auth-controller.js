@@ -1,7 +1,7 @@
 const { OAuth2Client } = require("google-auth-library");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
-const z = require('zod')
+
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -16,20 +16,8 @@ const googleLogin = async (req, res) => {
     });
 
     const payload = ticket.getPayload();
-
-    const userSchema = z.object({
-      sub: z.string().regex(/^\d+$/, "Google ID must be numeric"),
-      name: z.string().min(3),
-      email: z.email({message:'invalid email'}).trim(),
-      picture: z.url({message:'invalid url'}).trim()
-    })
-
-      const validation = userSchema.safeParse(payload)
-      if(!validation.success){
-        return res.status(401).json({error:"error validation error"})
-      }
     
-    const { sub, name, email, picture } = validation.data;
+    const { sub, name, email, picture } = payload;
     // Find or create user
     let user = await User.findOne({ googleId:sub });
 
@@ -61,13 +49,13 @@ const googleLogin = async (req, res) => {
       user
     });
 
-  } catch (error) {
-    console.error(error);
-    res.status(401).json({
-      success: false,
-      message: "Google authentication failed"
-    });
-  }
+  }  catch (error) {
+  console.error("Authentication Error Details:", error.message); // <-- ADD THIS LINE
+  res.status(401).json({
+    success: false,
+    message: "Google authentication failed"
+  });
+}
 };
 
 const logout = (req, res) => {

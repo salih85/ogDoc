@@ -3,8 +3,11 @@ import { useCallback, useMemo, useState, useEffect } from 'react'
 import { Editor, Node, Transforms, createEditor, Path } from 'slate'
 import { withHistory } from 'slate-history'
 import { Editable, Slate, useSlate, withReact, ReactEditor } from 'slate-react'
+import { useParams, useNavigate } from "react-router-dom";
 import api from '../api/axios'
 import axios from 'axios'
+
+
 
 // --- CONSTANTS ---
 const HOTKEYS = {
@@ -63,6 +66,13 @@ const ToolbarIcon = ({ children }) => (
 
 // --- MAIN COMPONENT ---
 const CreatePost = () => {
+
+
+  // ✅ ADD HERE (TOP of component)
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const isEditMode = Boolean(id);
+
   const [value, setValue] = useState(initialValue)
   const [title, setTitle] = useState('')
   const [isUploading, setIsUploading] = useState(false)
@@ -75,6 +85,27 @@ const CreatePost = () => {
     }
     return true;
   });
+
+  useEffect(() => {
+  if (!isEditMode) return;
+
+  const fetchPost = async () => {
+    try {
+      const res = await api.get(`/api/blog/${id}`);
+      setTitle(res.data.blog.title);
+      setValue(
+        Array.isArray(res.data.blog.content)
+          ? res.data.blog.content
+          : initialValue
+      );
+    } catch (err) {
+      console.error("Failed to load blog", err);
+    }
+  };
+
+  fetchPost();
+}, [id, isEditMode]);
+
 
   useEffect(() => {
     if (isDark) {
@@ -119,18 +150,28 @@ const CreatePost = () => {
     }
   }
 
-  const handleSave = async () => {
-    try {
+const handleSave = async () => {
+  try {
+    if (isEditMode) {
+      await api.put(`/api/blog/updateblog/${id}`, {
+        title,
+        content: value,
+      });
+      alert("Blog updated");
+    } else {
       await api.post("/api/blog/postblog", {
         title,
-        content: value
+        content: value,
       });
       alert("Blog published");
-    } catch (error) {
-      alert("Error saving post");
-      console.log(error)
     }
-  };
+    navigate("/home");
+  } catch (error) {
+    alert("Error saving post");
+    console.error(error);
+  }
+};
+
 
   return (
     <div className="min-h-screen transition-colors duration-500 py-10 px-4 bg-slate-50 dark:bg-[#0f172a] font-['Inter',_sans-serif]">

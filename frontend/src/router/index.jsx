@@ -19,6 +19,7 @@ const router = createBrowserRouter([
         children: [
           { path: "/home", element: <HomeFeed /> },
           { path: "/create", element: <CreatePost /> },
+           { path: "/edit/:id", element: <CreatePost /> },
         ]
       }
     ]
@@ -26,4 +27,4 @@ const router = createBrowserRouter([
 ]);
 
 
-export default router; // ✅ THIS FIXES THE ERROR
+export default router; 
