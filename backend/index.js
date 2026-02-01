@@ -10,7 +10,7 @@ const blogRoutes = require("./routes/blogRoutes");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const cookieParser = require("cookie-parser");
+
 const helmet = require('helmet')
 const rateLimit = require('express-rate-limit')
 const hpp = require('hpp')
@@ -30,13 +30,11 @@ app.use(helmet())
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
-    credentials: true,
+    origin: ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175"],
   })
 );
 
 app.use(express.json());
-app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 /*      MONGO-SANITIZE AND HPP IS NOT WORKING TOGETHER PROPERLY       */
 // app.use(

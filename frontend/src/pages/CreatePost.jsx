@@ -150,7 +150,6 @@ const CreatePost = () => {
     try {
       const res = await axios.post(url, formData, { withCredentials: false })
       let imageUrl = res.data.secure_url
-      // Cloudinary Transformation: Optimize for web
       imageUrl = imageUrl.replace('/upload/', '/upload/w_1200,c_limit,q_auto,f_auto/')
       insertImage(editor, imageUrl)
     } catch (err) {
