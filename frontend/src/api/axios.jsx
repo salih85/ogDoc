@@ -3,6 +3,7 @@ import secureLocalStorage from "react-secure-storage";
 
 const api = axios.create({
   baseURL: "http://localhost:3000",
+  withCredentials:true
 }); // credentials not needed for Bearer token auth
 
 // Request Interceptor: Attach Access Token
