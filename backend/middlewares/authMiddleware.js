@@ -19,4 +19,18 @@ const protect = async (req, res, next) => {
   }
 };
 
-module.exports = { protect };
+const tokenChecker = async (req,res,next)=>{
+  try{
+    const tkn = req.cookies.tkn
+    if(!tkn){
+      console.log("ACCESS TOKEN EXPIRED")
+      console.log("CHECKING FOR REFRESH TOKEN")
+      const rToken = User.findOne({_id:tkn._id}).select('Rtoken')
+      console.log(rToken)
+    }
+  }catch(error){
+    return res.status(500).json({message:'token not verfiyed'})
+  }
+}
+
+module.exports = { protect, tokenChecker };

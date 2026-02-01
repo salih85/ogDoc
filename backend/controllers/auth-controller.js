@@ -44,10 +44,10 @@ const googleLogin = async (req, res) => {
       sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
-
+    console.log(req.cookies)
     res.status(200).json({
       success: true,
-      user
+      accessToken
     });
 
   }  catch (error) {
