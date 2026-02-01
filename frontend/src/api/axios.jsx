@@ -3,15 +3,17 @@ import secureLocalStorage from "react-secure-storage";
 
 const api = axios.create({
   baseURL: "http://localhost:3000",
-  withCredentials: true // Still needed? Maybe not strictly for custom auth, but good for other cookies if any
-});
+}); // credentials not needed for Bearer token auth
 
 // Request Interceptor: Attach Access Token
 api.interceptors.request.use(
   (config) => {
     const token = secureLocalStorage.getItem("accessToken");
     if (token) {
+      console.log("Axios Interceptor: Attaching Access Token:", token.substring(0, 10) + "...");
       config.headers.Authorization = `Bearer ${token}`;
+    } else {
+      console.log("Axios Interceptor: No Access Token found in storage.");
     }
     return config;
   },
@@ -26,11 +28,13 @@ api.interceptors.response.use(
 
     // If 401 and not already retrying
     if (error.response?.status === 401 && !originalRequest._retry) {
+      console.log("Axios Interceptor: 401 Detected. Attempting Refresh...");
       originalRequest._retry = true;
 
       try {
         const refreshToken = secureLocalStorage.getItem("refreshToken");
         if (!refreshToken) {
+          console.log("Axios Interceptor: No Refresh Token found. Logging out.");
           // No refresh token, logout user
           secureLocalStorage.removeItem("accessToken");
           secureLocalStorage.removeItem("refreshToken");
@@ -38,10 +42,12 @@ api.interceptors.response.use(
           return Promise.reject(error);
         }
 
+        console.log("Axios Interceptor: Sending Refresh Request...");
         const res = await axios.post("http://localhost:3000/api/auth/refresh", {
           refreshToken,
         });
 
+        console.log("Axios Interceptor: Refresh Successful. New Access Token received.");
         const { accessToken } = res.data;
         secureLocalStorage.setItem("accessToken", accessToken);
         // If rotating refresh token: secureLocalStorage.setItem("refreshToken", res.data.refreshToken);
