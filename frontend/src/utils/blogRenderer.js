@@ -343,14 +343,14 @@ const defaultTheme = themes[3]; // Github Light
  */
 async function generateBlog(slug, themeName) {
     console.log("Generating Blog:", slug, "Theme:", themeName);
-    
+
     // 1. Fetch Data
     // Note: Adjust API URL if needed
     try {
         const response = await fetch(`https://blogify-three-weld.vercel.app/api/viewblog/${slug}`);
         if (!response.ok) throw new Error("Failed to fetch blog");
         const data = await response.json();
-        
+
         // 2. Resolve Theme
         let theme = defaultTheme;
         if (themeName) {
@@ -365,7 +365,7 @@ async function generateBlog(slug, themeName) {
             return;
         }
         canvas.innerHTML = ''; // Clear previous
-        
+
         // Apply Canvas Styles
         Object.assign(canvas.style, theme.canvas);
 
@@ -411,11 +411,14 @@ function renderBlogPost(blog, theme) {
     const gridDiv = document.createElement('div');
     gridDiv.style.display = 'grid';
     gridDiv.style.gridTemplateColumns = 'repeat(12, 1fr)';
-    gridDiv.style.gridAutoRows = '30px'; // Matching editor row height
-    gridDiv.style.gap = '10px 20px';     // Margin matching
+
+    // CHANGE THIS: Instead of a fixed 30px, allow it to expand
+    gridDiv.style.gridAutoRows = 'min-content';
+
+    gridDiv.style.gap = '10px 20px';
     gridDiv.style.width = '100%';
     gridDiv.style.marginTop = '20px';
-    
+
     article.append(gridDiv);
 
     // Inject Theme Content Styles (Quill HTML needs CSS classes/rules)
@@ -459,30 +462,31 @@ function renderBlogPost(blog, theme) {
  */
 function createGridItem(widget, theme) {
     const { x, y, w, h } = widget.layout;
-    
+
+    // Wrapper Div for Grid Positioning
     // Wrapper Div for Grid Positioning
     const wrapper = document.createElement('div');
     wrapper.style.gridColumnStart = x + 1;
     wrapper.style.gridColumnEnd = `span ${w}`;
     wrapper.style.gridRowStart = y + 1;
     wrapper.style.gridRowEnd = `span ${h}`;
-    wrapper.style.overflow = 'hidden'; // Keep content inside box
-    
+
+    // CHANGE THIS: Change 'hidden' to 'visible' so the full content shows
+    wrapper.style.overflow = 'visible';
+
     // Render Content based on Type
     if (widget.type === 'text') {
         const contentDiv = document.createElement('div');
-        contentDiv.classList.add('ql-content'); // Mark for styling
-        contentDiv.innerHTML = widget.content; // Raw HTML from Quill
-        // Object.assign(contentDiv.style, theme.text); // Handled by CSS to allow class overrides
-        contentDiv.style.height = '100%';
+        contentDiv.classList.add('ql-content');
+        contentDiv.innerHTML = widget.content;
+
         contentDiv.style.width = '100%';
-        // contentDiv.style.overflowY = 'auto'; // Removed to let it flow naturally in static view if needed, but grid constrains it.
-        // Actually, for a static renderer, we probably want overflow hidden or auto if it exceeds the fixed grid height? 
-        // But in a static view, the grid height should probably fit the content?
-        // Ah, the grid height is fixed by 'h' units from the editor. So auto overflow is safest.
-        contentDiv.style.overflowY = 'auto'; 
+        // Ensure height is not locked to 100% of the small grid box
+        contentDiv.style.height = 'auto';
+        contentDiv.style.overflow = 'visible';
+
         wrapper.append(contentDiv);
-    } 
+    }
     else if (widget.type === 'image') {
         const img = document.createElement('img');
         img.src = widget.content;
