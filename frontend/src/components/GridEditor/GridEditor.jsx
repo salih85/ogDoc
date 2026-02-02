@@ -114,7 +114,7 @@ const GridEditor = ({ widgets, setWidgets, readOnly = false }) => {
                         {!readOnly && (
                             <div className="absolute top-0 left-0 w-full h-6 z-50 opacity-0 group-hover:opacity-100 transition-opacity flex justify-between items-start px-1 pt-1 pointer-events-none">
                                 {/* DRAG HANDLE */}
-                                <div className="grid-drag-handle cursor-grab active:cursor-grabbing bg-slate-100 dark:bg-slate-700 text-slate-400 dark:text-slate-200 rounded px-2 shadow-sm pointer-events-auto hover:bg-slate-200">
+                                <div className="grid-drag-handle cursor-grab active:cursor-grabbing bg-slate-100 dark:bg-slate-600 text-slate-400 dark:text-slate-200 rounded px-2 shadow-sm pointer-events-auto hover:bg-slate-200 dark:hover:bg-slate-500">
                                     <span className="material-icons-outlined text-sm">drag_indicator</span>
                                 </div>
                                 {/* DELETE BUTTON */}
@@ -132,7 +132,7 @@ const GridEditor = ({ widgets, setWidgets, readOnly = false }) => {
                             </div>
                         )}
 
-                        <div className="h-full w-full overflow-hidden flex-grow" onMouseDown={e => e.stopPropagation()}>
+                        <div className="h-full w-full overflow-hidden flex-grow rounded-xl" onMouseDown={e => e.stopPropagation()}>
                             {/* Content Render */}
                             {widget.type === 'text' && (
                                 <TextWidget

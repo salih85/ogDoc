@@ -27,7 +27,7 @@ const ToolbarButton = ({ onClick, children, title }) => (
     <button
         onClick={onClick}
         title={title}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-md transition-all duration-200 text-sm font-medium bg-white border border-slate-200 shadow-sm hover:bg-slate-50 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700"
+        className="flex items-center gap-2 px-3 py-1.5 rounded-md transition-all duration-200 text-sm font-medium bg-white border border-slate-200 shadow-sm hover:bg-slate-50 text-slate-700 dark:!bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:hover:!bg-slate-700"
     >
         {children}
     </button>
@@ -50,6 +50,24 @@ const CreatePost = () => {
     const [widgets, setWidgets] = useState(initialWidgets)
     const [title, setTitle] = useState('')
     const [isUploading, setIsUploading] = useState(false)
+
+    const [isDark, setIsDark] = useState(() => {
+        if (typeof window !== "undefined") {
+            return localStorage.getItem("theme") === "dark" ||
+                (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        }
+        return true;
+    });
+
+    useEffect(() => {
+        if (isDark) {
+            document.documentElement.classList.add("dark");
+            localStorage.setItem("theme", "dark");
+        } else {
+            document.documentElement.classList.remove("dark");
+            localStorage.setItem("theme", "light");
+        }
+    }, [isDark]);
 
     // File Input Ref for robust handling
     const fileInputRef = useRef(null);
@@ -222,11 +240,17 @@ const CreatePost = () => {
             </style>
 
             <nav className="max-w-6xl mx-auto flex justify-between items-center mb-12">
-                <h2 className="font-['Outfit',_sans-serif] text-xl font-bold tracking-tight text-slate-900 dark:text-indigo-500">
+                <h2 className="font-['Outfit',_sans-serif] text-xl font-bold tracking-tight text-slate-900 dark:!text-slate-100">
                     New Story
                 </h2>
 
                 <div className="flex items-center gap-6">
+                    <button
+                        onClick={() => setIsDark(!isDark)}
+                        className="text-[10px] uppercase tracking-[0.2em] font-bold text-slate-400 dark:text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+                    >
+                        {isDark ? <i className="bi bi-sun h3"></i> : <i className="bi bi-moon h3"></i>}
+                    </button>
                     <button
                         onClick={handleSave}
                         className="px-6 py-2 rounded bg-slate-900 dark:bg-slate-100 text-slate-50 dark:text-slate-900 text-xs uppercase tracking-widest font-bold hover:opacity-90 transition-all active:scale-95"
@@ -237,7 +261,7 @@ const CreatePost = () => {
             </nav>
 
             <div className="max-w-[1400px] mx-auto">
-                <div className="bg-white dark:bg-[#1e293b] rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 transition-colors duration-500 overflow-hidden">
+                <div className="bg-white dark:!bg-[#1e293b] rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 transition-colors duration-500 overflow-hidden">
 
                     <div className="p-4 sm:p-8 min-h-[80vh]">
 
@@ -246,11 +270,22 @@ const CreatePost = () => {
                             placeholder="Title..."
                             value={title}
                             onChange={e => setTitle(e.target.value)}
-                            className="w-full mb-8 font-['Outfit',_sans-serif] text-lg md:text-5xl font-bold bg-transparent border-none focus:outline-none p-0 text-slate-700 placeholder:text-slate-300 dark:placeholder:text-slate-600 dark:text-slate-300"
+                            style={{
+                                padding: "1rem",
+                                margin: "1rem",
+                                borderRadius: "1rem",
+                                border: "none",
+                                outline: "none",
+                                fontSize: "2rem",
+                                fontWeight: "bold",
+                                backgroundColor: "transparent",
+                                transition: "all 0.3s ease",
+                            }}
+                            className="w-full font-['Outfit',_sans-serif] text-[#ffffffff] text-2xl md:text-4xl font-bold bg-transparent border-none focus:outline-none p-0 text-slate-700 placeholder:text-slate-300 dark:placeholder:text-slate-600 dark:text-slate-500"
                         />
 
                         {/* TOOLBAR */}
-                        <div className="sticky top-0 z-20 bg-white/95 dark:bg-[#1e293b]/95 backdrop-blur-sm transition-colors duration-500 rounded mb-5 shadow-sm">
+                        <div className="sticky top-0 z-20 bg-white/95 dark:!bg-[#1e293b]/95 backdrop-blur-sm transition-colors duration-500 rounded mb-5 shadow-sm">
                             <ToolbarContainer>
                                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mr-2 ml-1">Add Content:</span>
 
