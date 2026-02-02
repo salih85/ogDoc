@@ -3,6 +3,7 @@ import { useCallback, useMemo, useState, useEffect } from 'react'
 import { Editor, Node, Transforms, createEditor, Path } from 'slate'
 import { withHistory } from 'slate-history'
 import { Editable, Slate, useSlate, withReact, ReactEditor } from 'slate-react'
+import { useSelected, useFocused } from 'slate-react'
 import { useParams, useNavigate } from "react-router-dom";
 import api from '../api/axios'
 import axios from 'axios'
@@ -370,16 +371,35 @@ const Element = (props) => {
             return <p style={style} className="mb-4 text-lg text-slate-600 dark:text-slate-300 leading-8" {...attributes}>{children}</p>
     }
 }
+
 const ImageElement = ({ attributes, children, element }) => {
     const editor = useSlate()
-    const path = ReactEditor.findPath(editor, element)
-    const selected = useSlate().selection && Path.isPath(useSlate().selection.focus.path)
+    const selected = useSelected()
+    const focused = useFocused()
 
-    const setProperty = (newProps) => {
-        Transforms.setNodes(editor, newProps, { at: path })
+    // Function to handle the property changes
+    const setProperty = (event, newProps) => {
+        // IMPORTANT: Prevent the editor from losing focus when clicking the button
+        event.preventDefault()
+        
+        try {
+            const path = ReactEditor.findPath(editor, element)
+            Transforms.setNodes(editor, newProps, { at: path })
+        } catch (e) {
+            console.error("Could not find image path", e)
+        }
     }
 
-    // Logic for wrapping text
+    const deleteImage = (event) => {
+        event.preventDefault()
+        try {
+            const path = ReactEditor.findPath(editor, element)
+            Transforms.removeNodes(editor, { at: path })
+        } catch (e) {
+            console.error("Could not delete image", e)
+        }
+    }
+
     const isFloating = element.align === 'left' || element.align === 'right'
 
     const containerStyle = {
@@ -391,33 +411,55 @@ const ImageElement = ({ attributes, children, element }) => {
     }
 
     return (
-        <span // Must be span for inline elements
-            {...attributes}
-            style={containerStyle}
-            className="relative group transition-all duration-300"
-        >
+        <span {...attributes} style={containerStyle} className="relative group transition-all">
             <div contentEditable={false} className="relative">
-                {selected && (
-                    <div className="absolute -top-12 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-slate-900 text-white p-1 rounded-lg shadow-2xl z-50 whitespace-nowrap">
-                        {/* ALIGNMENT */}
-                        <button onClick={() => setProperty({ align: 'left', width: '33%' })} className={`p-1 rounded ${element.align === 'left' ? 'bg-indigo-500' : ''}`}><ToolbarIcon>format_align_left</ToolbarIcon></button>
-                        <button onClick={() => setProperty({ align: 'center', width: '100%' })} className={`p-1 rounded ${element.align === 'center' ? 'bg-indigo-500' : ''}`}><ToolbarIcon>format_align_center</ToolbarIcon></button>
-                        <button onClick={() => setProperty({ align: 'right', width: '33%' })} className={`p-1 rounded ${element.align === 'right' ? 'bg-indigo-500' : ''}`}><ToolbarIcon>format_align_right</ToolbarIcon></button>
-
-                        <div className="w-[1px] h-4 bg-slate-700 mx-1" />
-
-                        {/* RATIO / SIZE */}
-                        <button onClick={() => setProperty({ width: '25%' })} className="px-2 text-[10px] font-bold hover:text-indigo-400">25%</button>
-                        <button onClick={() => setProperty({ width: '50%' })} className="px-2 text-[10px] font-bold hover:text-indigo-400">50%</button>
-                        <button onClick={() => setProperty({ width: '100%' })} className="px-2 text-[10px] font-bold hover:text-indigo-400">100%</button>
-
-                        <button onClick={() => Transforms.removeNodes(editor, { at: path })} className="p-1 text-red-400 hover:text-red-200"><ToolbarIcon>delete</ToolbarIcon></button>
+                {selected && focused && (
+                    <div 
+                        className="absolute -top-14 left-0 flex items-center gap-2 bg-[#1e293b] text-white px-3 py-2 rounded-xl shadow-2xl z-50"
+                        onMouseDown={e => e.preventDefault()} // Stops focus from leaving the image
+                    >
+                        <button 
+                            onMouseDown={(e) => setProperty(e, { align: 'left', width: '33%' })} 
+                            className={`p-1.5 rounded-lg hover:bg-slate-700 ${element.align === 'left' ? 'bg-indigo-600' : ''}`}
+                        >
+                            <ToolbarIcon>format_align_left</ToolbarIcon>
+                        </button>
+                        
+                        <button 
+                            onMouseDown={(e) => setProperty(e, { align: 'center', width: '100%' })} 
+                            className={`p-1.5 rounded-lg hover:bg-slate-700 ${element.align === 'center' ? 'bg-indigo-600' : ''}`}
+                        >
+                            <ToolbarIcon>format_align_center</ToolbarIcon>
+                        </button>
+                        
+                        <button 
+                            onMouseDown={(e) => setProperty(e, { align: 'right', width: '33%' })} 
+                            className={`p-1.5 rounded-lg hover:bg-slate-700 ${element.align === 'right' ? 'bg-indigo-600' : ''}`}
+                        >
+                            <ToolbarIcon>format_align_right</ToolbarIcon>
+                        </button>
+                        
+                        <div className="w-[1px] h-6 bg-slate-700 mx-1" />
+                        
+                        <button onMouseDown={(e) => setProperty(e, { width: '25%' })} className="px-2 py-1 text-sm font-bold hover:text-indigo-400">25%</button>
+                        <button onMouseDown={(e) => setProperty(e, { width: '50%' })} className="px-2 py-1 text-sm font-bold hover:text-indigo-400">50%</button>
+                        <button onMouseDown={(e) => setProperty(e, { width: '100%' })} className="px-2 py-1 text-sm font-bold hover:text-indigo-400">100%</button>
+                        
+                        <div className="w-[1px] h-6 bg-slate-700 mx-1" />
+                        
+                        <button 
+                            onMouseDown={deleteImage} 
+                            className="p-1.5 text-red-400 hover:bg-red-500/20 rounded-lg"
+                        >
+                            <ToolbarIcon>delete</ToolbarIcon>
+                        </button>
                     </div>
                 )}
+                
                 <img
                     src={element.url}
                     alt=""
-                    className={`rounded-lg transition-all ${selected ? 'ring-4 ring-indigo-500 shadow-xl' : 'shadow-sm'}`}
+                    className={`rounded-xl transition-all duration-300 ${selected && focused ? 'ring-4 ring-indigo-500 scale-[1.01]' : 'opacity-100'}`}
                     style={{ width: '100%', display: 'block' }}
                 />
             </div>
