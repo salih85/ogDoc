@@ -4,7 +4,7 @@ import secureLocalStorage from "react-secure-storage";
 const api = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL,
   withCredentials:true
-}); // credentials not needed for Bearer token auth
+}); 
 
 // Request Interceptor: Attach Access Token
 api.interceptors.request.use(
@@ -36,10 +36,8 @@ api.interceptors.response.use(
         const refreshToken = secureLocalStorage.getItem("refreshToken");
         if (!refreshToken) {
           console.log("Axios Interceptor: No Refresh Token found. Logging out.");
-          // No refresh token, logout user
           secureLocalStorage.removeItem("accessToken");
           secureLocalStorage.removeItem("refreshToken");
-          // window.location.href = "/login"; // Optional: Redirect to login
           return Promise.reject(error);
         }
 
@@ -51,16 +49,13 @@ api.interceptors.response.use(
         console.log("Axios Interceptor: Refresh Successful. New Access Token received.");
         const { accessToken } = res.data;
         secureLocalStorage.setItem("accessToken", accessToken);
-        // If rotating refresh token: secureLocalStorage.setItem("refreshToken", res.data.refreshToken);
 
-        // Update header and retry original request
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return api(originalRequest);
       } catch (refreshError) {
         console.error("Token refresh failed:", refreshError);
         secureLocalStorage.removeItem("accessToken");
         secureLocalStorage.removeItem("refreshToken");
-        // window.location.href = "/login"; // Optional: Redirect to login
         return Promise.reject(refreshError);
       }
     }

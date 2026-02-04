@@ -7,9 +7,6 @@ const ImageWidget = ({ url, readOnly }) => {
                 src={url}
                 alt="Post content"
                 className="w-full h-full object-cover pointer-events-none"
-            // pointer-events-none is important so the drag handler of the grid works on the item body if needed, 
-            // but usually RGL uses a handle. 
-            // If we want to drag by the image content, we might need to disable pointer events or handle them carefully.
             />
         </div>
     )

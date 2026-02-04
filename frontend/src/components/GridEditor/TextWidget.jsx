@@ -6,28 +6,27 @@ import 'quill/dist/quill.snow.css';
 const modules = {
     toolbar: [
         [{ 'header': [1, 2, 3, false] }],
-        [{ 'align': [] }], // Added Alignment
+        [{ 'align': [] }], 
         ['bold', 'italic', 'underline', 'strike', 'blockquote'],
         [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
-        ['link', 'clean'] // Removed image/video since we have widgets for that
+        ['link', 'clean'] 
     ],
 };
 
 const formats = [
-    'header', 'align', // Added Format
+    'header', 'align', 
     'bold', 'italic', 'underline', 'strike', 'blockquote',
     'list', 'bullet', 'indent',
     'link'
 ];
 
 const TextWidget = ({ id, content, onChange, readOnly = false }) => {
-    // Quill uses HTML strings. 
     const safeContent = Array.isArray(content) ? '' : content;
 
     return (
         <div className="h-full w-full flex flex-col bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 overflow-hidden"
             style={{ cursor: 'text' }}
-            onMouseDown={(e) => e.stopPropagation()} /* Allow clicking into editor */
+            onMouseDown={(e) => e.stopPropagation()} 
         >
             <ReactQuill
                 theme="snow"

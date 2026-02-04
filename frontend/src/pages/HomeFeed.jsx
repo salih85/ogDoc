@@ -41,7 +41,7 @@ export default function HomeFeed() {
   const [posts, setPosts] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [postToDeleteId, setPostToDeleteId] = useState(null);
-  const [postToDeleteTitle, setPostToDeleteTitle] = useState(''); // To display in modal
+  const [postToDeleteTitle, setPostToDeleteTitle] = useState(''); 
 
    const navigate = useNavigate();
 
@@ -49,28 +49,25 @@ export default function HomeFeed() {
   navigate(`/edit/${postId}`);
 };
 
-  // Modified deletePost to show modal
   const deletePost = async (postId, postTitle) => {
     setPostToDeleteId(postId);
     setPostToDeleteTitle(postTitle);
     setShowDeleteModal(true);
   }
 
-  // Function called when user confirms in the modal
   const confirmDelete = async () => {
     if (!postToDeleteId) return;
 
     try {
-      // Assuming 'api.get' is correct for your backend's delete endpoint
       let res = await api.get(`/api/blog/deleteblog/${postToDeleteId}`)
-      setPosts(posts.filter(item => item._id !== postToDeleteId)); // Use strict equality
+      setPosts(posts.filter(item => item._id !== postToDeleteId)); 
       console.log("Post deleted.");
       setShowDeleteModal(false);
       setPostToDeleteId(null);
       setPostToDeleteTitle('');
     } catch (e) {
       console.error('error deleting post', e);
-      setShowDeleteModal(false); // Close modal even on error
+      setShowDeleteModal(false); 
     }
   };
 
@@ -164,7 +161,6 @@ export default function HomeFeed() {
             >
               <div className="flex flex-col gap-2">
 
-                {/* Icons container - Positioned Absolutely in the top-right corner */}
                 <div className="absolute top-4 right-4 flex gap-3 text-sm">
                   {/* Edit Icon */}
                   <i
@@ -177,13 +173,13 @@ export default function HomeFeed() {
                     title="Edit Post"
                   ></i>
 
-                  {/* Delete Icon - Now triggers modal */}
+                  {/* Delete Icon */}
                   <i
                     className="bi bi-trash3 hover:text-red-500 transition-colors cursor-pointer text-slate-400 dark:text-slate-500"
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      deletePost(post._id, post.title); // Pass title as well
+                      deletePost(post._id, post.title); 
                     }}
                     title="Delete Post"
                   ></i>
@@ -227,7 +223,6 @@ export default function HomeFeed() {
         </div>
       </main>
 
-      {/* Render the modal */}
       <DeleteConfirmationModal
         show={showDeleteModal}
         onClose={closeDeleteModal}

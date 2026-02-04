@@ -1,12 +1,8 @@
 import React from 'react';
-import 'react-quill-new/dist/quill.snow.css'; // Import styles for consistent text formatting
+import 'react-quill-new/dist/quill.snow.css'; 
 
 const BlogRenderer = ({ content }) => {
     if (!content || !Array.isArray(content)) return null;
-
-    // We rely on CSS Grid to replicate the 12-column layout.
-    // RGL config was: rowHeight={30}, margin={[10, 10]}
-    // CSS Grid gap should be 20px (10px * 2) to approximate RGL margins.
 
     return (
         <div className="w-full max-w-[1200px] mx-auto p-4">
@@ -14,8 +10,8 @@ const BlogRenderer = ({ content }) => {
                 style={{
                     display: 'grid',
                     gridTemplateColumns: 'repeat(12, 1fr)',
-                    gridAutoRows: '30px', // Matches the Editor's rowHeight
-                    gap: '10px 20px', // Row gap 10px, Col gap 20px
+                    gridAutoRows: '30px', 
+                    gap: '10px 20px', 
                 }}
             >
                 {content.map((widget) => {
@@ -30,12 +26,9 @@ const BlogRenderer = ({ content }) => {
 
                     return (
                         <div key={widget.id} style={style} className="overflow-hidden">
-                            {/* TEXT WIDGET RENDERER */}
                             {widget.type === 'text' && (
                                 <div
                                     className="ql-editor p-0 h-full w-full"
-                                    // Using dangerouslySetInnerHTML to render the HTML string from Quill
-                                    // In production, consider using DOMPurify.sanitize(widget.content)
                                     dangerouslySetInnerHTML={{ __html: widget.content }}
                                     style={{ color: 'inherit', overflowY: 'auto' }}
                                 />

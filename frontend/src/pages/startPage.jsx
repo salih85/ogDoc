@@ -33,7 +33,6 @@ export default function StartPage() {
         dark:bg-[#0f172a] dark:text-slate-400
       "
     >
-      {/* Google Fonts Import */}
       <style>
         {`
           @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Outfit:wght@700;800&display=swap');
@@ -42,7 +41,6 @@ export default function StartPage() {
         `}
       </style>
 
-      {/* Theme Toggle */}
       <button
         onClick={() => setIsDark(!isDark)}
         className="
@@ -56,7 +54,6 @@ export default function StartPage() {
         {isDark ? <i className="bi bi-sun h3"></i> : <i className="bi bi-moon h3"></i>}
       </button>
 
-      {/* HERO */}
       <section className="relative z-10 min-h-screen flex items-center justify-center px-6">
         <div
           style={{borderRadius:"10px"}}
@@ -66,7 +63,6 @@ export default function StartPage() {
             transition-colors duration-500
           "
         >
-          {/* Inner Content Area */}
           <div
             style={{borderRadius:"10px"}}
             className="
