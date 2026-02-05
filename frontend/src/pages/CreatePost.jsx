@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react' // Import React and useRef
+import React, { useState, useEffect, useRef } from 'react' 
 import { useParams, useNavigate } from "react-router-dom";
 import api from '../api/axios'
 import axios from 'axios'
 import GridEditor from '../components/GridEditor/GridEditor'
 import { v4 as uuidv4 } from 'uuid';
 
-// --- CONSTANTS ---
 const initialWidgets = [
     {
         id: 'init-1',
@@ -16,7 +15,6 @@ const initialWidgets = [
 ]
 
 
-// --- LOCAL STYLED COMPONENTS ---
 const ToolbarContainer = ({ children }) => (
     <div className="flex flex-wrap gap-2 items-center pb-4 mb-4 border-b border-slate-200 dark:border-slate-700/50 transition-colors duration-300">
         {children}
@@ -69,7 +67,6 @@ const CreatePost = () => {
         }
     }, [isDark]);
 
-    // File Input Ref for robust handling
     const fileInputRef = useRef(null);
 
     useEffect(() => {
@@ -82,10 +79,8 @@ const CreatePost = () => {
 
                 const loadedContent = res.data.blog.content;
 
-                // MIGRATION / ADAPTER LOGIC
                 if (Array.isArray(loadedContent) && loadedContent.length > 0) {
                     if (loadedContent[0].layout && loadedContent[0].id) {
-                        // Widget format present. Ensure text content is string (Quill) not object (Slate)
                         const fixedWidgets = loadedContent.map(w => ({
                             ...w,
                             layout: {
@@ -95,7 +90,6 @@ const CreatePost = () => {
                         }));
                         setWidgets(fixedWidgets);
                     } else {
-                        // Old Slate JSON (pure array)
                         setWidgets([{
                             id: uuidv4(),
                             type: 'text',
@@ -117,12 +111,11 @@ const CreatePost = () => {
     }, [id, isEditMode]);
 
 
-    // --- UPLOAD & ADD WIDGET LOGIC ---
     const addTextWidget = () => {
         const newWidget = {
             id: uuidv4(),
             type: 'text',
-            content: '', // Quill starts empty
+            content: '', 
             layout: { x: 0, y: Infinity, w: 12, h: 4 }
         };
         setWidgets([...widgets, newWidget]);
@@ -190,12 +183,10 @@ const CreatePost = () => {
         }
 
         try {
-            // Validate and Sanitize widgets
             const sanitizedWidgets = widgets.map(w => ({
                 ...w,
                 layout: {
                     ...w.layout,
-                    // KEEP Infinity — react-grid-layout understands it
                     y: w.layout.y
                 }
             }));

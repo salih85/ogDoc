@@ -1,4 +1,3 @@
-/* Login.css */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
 
 body {
@@ -7,7 +6,6 @@ body {
 }
 
 .login-container {
-  /* Deep Dark Gradient Background */
   background: linear-gradient(135deg, #0f172a 0%, #000000 100%);
   height: 100vh;
   width: 100vw;
@@ -18,7 +16,6 @@ body {
   overflow: hidden;
 }
 
-/* Optional: Adds a subtle background glow effect */
 .login-container::before {
   content: '';
   position: absolute;
@@ -31,15 +28,14 @@ body {
 }
 
 .login-card {
-  /* Glassmorphism Effect */
-  background: rgba(30, 41, 59, 0.4); /* Semi-transparent dark blue/slate */
-  backdrop-filter: blur(12px); /* The blur effect */
+  background: rgba(30, 41, 59, 0.4); 
+  backdrop-filter: blur(12px); 
   -webkit-backdrop-filter: blur(12px);
-  
-  border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
+
+  border: 1px solid rgba(255, 255, 255, 0.1); 
   padding: 3.5rem 2.5rem;
   border-radius: 24px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8); /* Deep shadow */
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8); 
   
   display: flex;
   flex-direction: column;
@@ -56,7 +52,6 @@ body {
   font-weight: 700;
   margin: 0;
   
-  /* Gradient Text */
   background: linear-gradient(to right, #fff 0%, #a5b4fc 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -66,7 +61,7 @@ body {
 }
 
 .login-subtitle {
-  color: #94a3b8; /* Muted slate text */
+  color: #94a3b8; 
   font-size: 0.95rem;
   margin-top: -1.5rem;
   margin-bottom: 0.5rem;
@@ -79,7 +74,6 @@ body {
   justify-content: center;
 }
 
-/* Ensure the Google Button container has a minimum height to prevent layout shift */
 #googleSignInDiv {
   min-height: 44px;
 }

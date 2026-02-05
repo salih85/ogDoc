@@ -1,7 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
 
-// The container for the buttons
 export const Toolbar = React.forwardRef(({ className, ...props }, ref) => (
   <div
     {...props}
@@ -14,7 +13,6 @@ export const Toolbar = React.forwardRef(({ className, ...props }, ref) => (
   />
 ));
 
-// The actual button
 export const Button = React.forwardRef(
   ({ className, active, reversed, ...props }, ref) => (
     <span
@@ -23,15 +21,12 @@ export const Button = React.forwardRef(
       className={cx(
         className,
         "cursor-pointer p-2 rounded hover:bg-gray-100 transition-colors",
-        // Conditional styling: simpler and cleaner with Tailwind
         active ? "text-black bg-gray-200" : "text-gray-400"
       )}
     />
   )
 );
 
-// The Icon component
-// Note: This relies on Google Material Icons (see step 4 below)
 export const Icon = React.forwardRef(({ className, ...props }, ref) => (
   <span
     {...props}

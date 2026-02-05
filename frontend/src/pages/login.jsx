@@ -23,7 +23,7 @@ function Login() {
       {
         theme: isDark ? "filled_black" : "outline",
         size: "large",
-        shape: "pill", // ✅ Restored the rounded pill shape
+        shape: "pill", 
         width: "280",
       }
     );
@@ -75,7 +75,6 @@ function Login() {
           </p>
 
           <div className="flex justify-center">
-            {/* The Pill Shape is defined in the useEffect renderButton config */}
             <div
               id="googleSignInDiv"
               className="hover:opacity-90 transition-opacity"

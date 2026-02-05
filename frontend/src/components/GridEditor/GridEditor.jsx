@@ -20,7 +20,6 @@ const useContainerWidth = () => {
             for (let entry of entries) {
                 if (entry.contentRect) {
                     const newWidth = Math.floor(entry.contentRect.width);
-                    // Threshold to prevent loops
                     setWidth(prev => {
                         if (Math.abs(prev - newWidth) > 5) {
                             return newWidth;
@@ -43,16 +42,9 @@ const useContainerWidth = () => {
 
 
 const GridEditor = ({ widgets, setWidgets, readOnly = false }) => {
-    // SIMPLIfIED: Using data-grid approach. No local layouts state.
     const { width, ref: containerRef } = useContainerWidth();
 
-    const onLayoutChange = (layout) => {
-        // No-op for state. RGL manages visual state internally.
-        // We only care about the final result in onDragStop.
-    };
-
     const onLayoutStop = (layout) => {
-        // Sync the new layout positions back to the main widgets state
         const updatedWidgets = widgets.map(w => {
             const l = layout.find(item => item.i === w.id);
             if (l) {

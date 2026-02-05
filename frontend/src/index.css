@@ -6,7 +6,6 @@
   --font-serif: "Source Serif 4", ui-serif, Georgia;
 }
 
-/* Add this to force Tailwind to recognize the .dark class */
 @variant dark (&:where(.dark, .dark *));
 
 @layer base {
@@ -15,14 +14,12 @@
   }
 }
 
-/* Default: show text */
 .sidebar-brand .brand-text {
   font-size: 1.4rem;
   font-weight: 700;
   white-space: nowrap;
 }
 
-/* Hide text when sidebar is narrow */
 .sidebar.sidebar-narrow-unfoldable:not(:hover) .sidebar-brand .brand-text {
   display: none;
 }
