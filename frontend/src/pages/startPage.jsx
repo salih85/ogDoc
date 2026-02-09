@@ -79,7 +79,7 @@ export default function StartPage() {
             <h1 className="font-['Outfit',_sans-serif] text-5xl md:text-6xl font-extrabold mb-8 tracking-tight text-slate-900 dark:text-white">
               Welcome to{" "}
               <span className="text-slate-400 dark:text-gray-400">
-                Blogify
+                ogDoc
               </span>
             </h1>
 

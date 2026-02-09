@@ -39,7 +39,7 @@ export const Sidebar = () => {
       <CSidebarHeader className="border-bottom d-flex justify-content-center align-items-center dark:bg-black dark:border-gray-700">
         <CSidebarBrand className="sidebar-brand d-flex align-items-center gap-2 dark:text-white">
   <CIcon icon={cilNotes} height={28} />
-  <span className="brand-text">Blogify</span>
+  <span className="brand-text">ogDoc</span>
 </CSidebarBrand>
 
 

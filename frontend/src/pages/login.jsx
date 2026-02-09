@@ -71,7 +71,7 @@ function Login() {
           </h1>
 
           <p className="text-slate-600 dark:text-gray-400 text-sm mb-12">
-            Continue to <span className="font-semibold text-gray-300">Blogify</span>
+            Continue to <span className="font-semibold text-gray-300">ogDoc</span>
           </p>
 
           <div className="flex justify-center">
