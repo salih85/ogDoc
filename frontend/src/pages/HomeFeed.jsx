@@ -127,9 +127,21 @@ export default function HomeFeed() {
           ogDoc
         </h2>
         <div className="flex items-center gap-6">
-          <Link to="/create" className="px-5 py-2 rounded-lg bg-slate-900 dark:bg-gray-600 text-white dark:text-white text-xs uppercase tracking-widest font-bold hover:opacity-80 transition-all active:scale-95">
-            Write
-          </Link>
+          <button
+  onClick={async () => {
+    try {
+      const res = await api.post('/api/blog/create-draft');
+      const newId = res.data.blog._id;
+
+      navigate(`/create/${newId}`);
+    } catch (e) {
+      console.error("Error creating draft:", e);
+    }
+  }}
+  className="px-5 py-2 rounded-lg bg-slate-900 dark:bg-gray-600 text-white dark:text-white text-xs uppercase tracking-widest font-bold hover:opacity-80 transition-all active:scale-95"
+>
+  Write
+</button>
           <button
             onClick={() => setIsDark(!isDark)}
             className="text-[10px] uppercase tracking-[0.2em] font-bold text-slate-400 dark:text-gray-400 hover:text-slate-900 dark:hover:text-gray-300 transition-colors"
