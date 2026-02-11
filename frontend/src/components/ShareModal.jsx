@@ -5,12 +5,12 @@ const ShareModal = ({ open, onClose, docId }) => {
 
   if (!open) return null;
 
-  const shareLink = `${window.location.origin}/edit/${docId}`;
+  const shareLink = `${window.location.origin}/create/${docId}`;
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(shareLink);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => setCopied(false),2000);
   };
 
   return (

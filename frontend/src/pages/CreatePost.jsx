@@ -123,7 +123,7 @@ const CreatePost = () => {
             const newId = res.data.blog._id
 
             setDocId(newId)
-            navigate(`/edit/${newId}`, { replace: true })
+            navigate(`/create/${newId}`, { replace: true })
         }
 
         createDraft()

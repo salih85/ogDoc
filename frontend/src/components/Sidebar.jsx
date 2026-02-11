@@ -62,10 +62,23 @@ export const Sidebar = () => {
         </CNavItem>
 
         <CNavItem>
-          <NavLink to="/create" className="nav-link dark:text-gray-400">
-            <CIcon customClassName="nav-icon dark:text-gray-400" icon={cilPencil} /> Compose
-          </NavLink>
-        </CNavItem>
+  <button
+    onClick={async () => {
+      try {
+        const res = await api.post('/api/blog/create-draft')
+        const newId = res.data.blog._id
+        navigate(`/create/${newId}`)
+      } catch (error) {
+        console.error("Error creating draft:", error)
+      }
+    }}
+    className="nav-link dark:text-gray-400 w-full text-start bg-transparent border-0 flex items-center gap-2"
+  >
+    <CIcon customClassName="nav-icon dark:text-gray-400" icon={cilPencil} />
+    Compose
+  </button>
+</CNavItem>
+
         <CNavItem className="mt-auto">
           <NavLink onClick={handleLogout} className="nav-link text-danger">
             <CIcon customClassName="nav-icon text-danger" icon={cilAccountLogout} /> Logout
