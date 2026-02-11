@@ -5,6 +5,11 @@ import axios from 'axios'
 import GridEditor from '../components/GridEditor/GridEditor'
 import ShareModal from '../components/ShareModal'
 import { v4 as uuidv4 } from 'uuid';
+import * as Y from 'yjs';
+import { initSocket, disconnectSocket, getSocket } from '../collaboration/socket';
+import { Awareness, encodeAwarenessUpdate, applyAwarenessUpdate } from 'y-protocols/awareness';
+
+
 
 const initialWidgets = [
     {
@@ -52,6 +57,11 @@ const CreatePost = () => {
     const [widgets, setWidgets] = useState(initialWidgets)
     const [title, setTitle] = useState('')
     const [isUploading, setIsUploading] = useState(false)
+    const [ydoc, setYdoc] = useState(null);
+    const [awareness, setAwareness] = useState(null);
+    const [collaborators, setCollaborators] = useState([]);
+
+    const [yWidgets, setYWidgets] = useState(null);
 
     const [isDark, setIsDark] = useState(() => {
         if (typeof window !== "undefined") {
@@ -110,13 +120,140 @@ const CreatePost = () => {
                 console.error("Failed to load blog", err);
             }
         };
-
         fetchPost();
     }, [id, isEditMode]);
 
+    // Cleanup socket on unmount
+    useEffect(() => {
+        return () => {
+            disconnectSocket();
+        };
+    }, []);
+
+    // Initialize Yjs and Socket when docId is available
+    useEffect(() => {
+        if (!docId) return;
+
+        const doc = new Y.Doc();
+        setYdoc(doc);
+        const widgetsArray = doc.getArray('widgets');
+        setYWidgets(widgetsArray);
+
+        const awarenessInstance = new Awareness(doc);
+        setAwareness(awarenessInstance);
+
+        const socket = initSocket(docId);
+
+        socket.emit("doc:join", docId);
+
+        socket.on("doc:sync", (update) => {
+            console.log("Received doc:sync, applying update...");
+            Y.applyUpdate(doc, new Uint8Array(update), 'server');
+        });
+
+        socket.on("doc:update", (update) => {
+            console.log("Received doc:update, applying update...");
+            Y.applyUpdate(doc, new Uint8Array(update), 'server');
+        });
+
+
+        // Track active users (legacy indicator)
+        socket.on("doc:users", (users) => {
+            setCollaborators(users);
+        });
+
+        // Awareness events
+        socket.on("doc:awareness", (update) => {
+            applyAwarenessUpdate(awarenessInstance, new Uint8Array(update), 'server');
+        });
+
+        awarenessInstance.on('update', ({ added, updated, removed }, origin) => {
+            if (origin !== 'server') {
+                const update = encodeAwarenessUpdate(awarenessInstance, added.concat(updated).concat(removed));
+                socket.emit("doc:awareness", {
+                    blogId: docId,
+                    awareness: Array.from(update)
+                });
+            }
+        });
+
+        // Set local awareness state (name/color)
+        const userData = JSON.parse(localStorage.getItem('user')) || {};
+        awarenessInstance.setLocalStateField('user', {
+            name: userData.name || `Guest ${socket.id?.substring(0, 4) || ''}`,
+            color: '#' + Math.floor(Math.random() * 16777215).toString(16) // Random color
+        });
+
+        doc.on('update', (update, origin) => {
+            if (origin !== 'server') {
+                console.log("Sending doc:update to server...");
+                socket.emit('doc:update', {
+                    blogId: docId,
+                    update: Array.from(update)
+                });
+            }
+        });
+
+
+        // Sync Widgets Array
+        widgetsArray.observe((event) => {
+            if (event.transaction.origin === 'local') return; // Ignore local changes to avoid loops
+            setWidgets(widgetsArray.toArray());
+        });
+
+        return () => {
+            doc.destroy();
+            disconnectSocket(); // Re-connect if docId changes
+        };
+    }, [docId]);
+
+
+    // Helper to update both local state and Yjs array
+    const updateWidgets = (newWidgets) => {
+        setWidgets(newWidgets);
+
+        if (!yWidgets) return;
+
+        // Optimization: Prevent frequent Y.Array updates for text content changes
+        // because y-quill handles text synchronization separately.
+        // We only want to sync to Y.Array if:
+        // 1. Widget count changed (added/removed)
+        // 2. Layout changed (moved/resized)
+        // 3. Non-text content changed (image/video)
+
+        const shouldSync = () => {
+            if (newWidgets.length !== widgets.length) return true;
+
+            return newWidgets.some((nw, i) => {
+                const ow = widgets[i];
+                if (!ow) return true;
+                if (nw.id !== ow.id) return true;
+                if (nw.type !== ow.type) return true;
+
+                // Check layout changes
+                if (nw.layout.x !== ow.layout.x ||
+                    nw.layout.y !== ow.layout.y ||
+                    nw.layout.w !== ow.layout.w ||
+                    nw.layout.h !== ow.layout.h) return true;
+
+                // Check content changes ONLY for non-text widgets
+                if (nw.type !== 'text' && nw.content !== ow.content) return true;
+
+                return false;
+            });
+        };
+
+        if (shouldSync()) {
+            yWidgets.doc.transact(() => {
+                yWidgets.delete(0, yWidgets.length);
+                yWidgets.insert(0, newWidgets);
+            }, 'local');
+        }
+    };
+
 
     useEffect(() => {
-        if (!isCreateMode || docId) return   // 🔴 IMPORTANT
+        if (!isCreateMode) return
 
         const createDraft = async () => {
             const res = await api.post('/api/blog/create-draft')
@@ -151,7 +288,8 @@ const CreatePost = () => {
             content: '',
             layout: { x: 0, y: Infinity, w: 12, h: 4 }
         };
-        setWidgets([...widgets, newWidget]);
+        const newWidgets = [...widgets, newWidget];
+        updateWidgets(newWidgets);
     };
 
     const triggerImageUpload = () => {
@@ -184,7 +322,8 @@ const CreatePost = () => {
                 content: imageUrl,
                 layout: { x: 0, y: Infinity, w: 4, h: 8 }
             };
-            setWidgets([...widgets, newWidget]);
+            const newWidgets = [...widgets, newWidget];
+            updateWidgets(newWidgets);
 
         } catch (err) {
             console.error("Cloudinary upload error", err)
@@ -204,48 +343,76 @@ const CreatePost = () => {
                 content: url,
                 layout: { x: 0, y: Infinity, w: 6, h: 8 }
             };
-            setWidgets([...widgets, newWidget]);
+            const newWidgets = [...widgets, newWidget];
+            updateWidgets(newWidgets);
         }
     };
 
 
 
     const handleSave = async () => {
+        console.log('🚀 Publish button clicked');
+
         if (!title.trim()) {
             alert("Please enter a title for your post.");
             return;
         }
 
+        if (!docId) {
+            alert("Document ID is missing. Please try refreshing the page.");
+            return;
+        }
+
         try {
-            const sanitizedWidgets = widgets.map(w => ({
-                ...w,
-                layout: {
-                    ...w.layout,
-                    y: w.layout.y
+            console.log('📦 Preparing widgets for save...', { widgetCount: widgets.length, ydoc: !!ydoc });
+
+            const sanitizedWidgets = widgets.map(w => {
+                let content = w.content;
+                if (w.type === 'text' && ydoc) {
+                    const ytext = ydoc.getText(w.id);
+                    content = ytext.toString();
+                    console.log(`   Widget ${w.id}: Y.Text content length = ${content.length}`);
                 }
-            }));
-
-
+                return {
+                    ...w,
+                    content,
+                    layout: {
+                        ...w.layout,
+                        y: w.layout.y
+                    }
+                };
+            });
 
             const payload = {
                 title,
                 content: sanitizedWidgets,
             };
 
-            await api.post(`/api/blog/updateblog/${docId}`, {
+            console.log('📤 Sending to server...', { docId, title, widgetCount: sanitizedWidgets.length });
+
+            const response = await api.post(`/api/blog/updateblog/${docId}`, {
                 ...payload,
                 published: true
             });
+
+            console.log('✅ Published successfully!', response.data);
             navigate("/home");
         } catch (error) {
-            console.error(error);
-            if (error.response && error.response.status === 400) {
-                alert("Cannot save: " + JSON.stringify(error.response.data));
+            console.error('❌ Publish failed:', error);
+            if (error.response) {
+                console.error('   Response data:', error.response.data);
+                console.error('   Response status:', error.response.status);
+                alert(`Cannot save: ${JSON.stringify(error.response.data)}`);
+            } else if (error.request) {
+                console.error('   No response received:', error.request);
+                alert("Error: No response from server. Is the backend running?");
             } else {
-                alert("Error saving post");
+                console.error('   Error message:', error.message);
+                alert(`Error saving post: ${error.message}`);
             }
         }
     };
+
 
     if (loading) {
         return <div className="text-center mt-20">Loading editor...</div>;
@@ -253,13 +420,7 @@ const CreatePost = () => {
 
     return (
         <div className="min-h-screen py-10 px-4 bg-slate-50 dark:bg-black font-['Inter',_sans-serif]">
-            <style>
-                {`
-          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap');
-          @import url('https://fonts.googleapis.com/icon?family=Material+Icons+Outlined');
-          @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css");
-        `}
-            </style>
+
 
             <nav className="max-w-6xl mx-auto flex justify-between items-center mb-12 px-4 py-4 rounded-lg">
                 <h2 className="font-['Outfit',_sans-serif] text-2xl font-bold tracking-tight text-slate-900 dark:!text-gray-400">
@@ -267,6 +428,12 @@ const CreatePost = () => {
                 </h2>
 
                 <div className="flex items-center gap-6">
+                    {/* Active Collaborators Indicator */}
+                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500 bg-slate-100 dark:bg-gray-800 px-3 py-1.5 rounded-full">
+                        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                        {collaborators.length} Online
+                    </div>
+
                     <button
                         onClick={() => setIsDark(!isDark)}
                         className="text-[10px] uppercase tracking-[0.2em] font-bold text-slate-400 dark:text-gray-400 hover:text-slate-900 dark:hover:text-gray-300 transition-colors"
@@ -350,7 +517,7 @@ const CreatePost = () => {
 
                         {/* GRID EDITOR CANVAS */}
                         <div className="dark:bg-gray-300">
-                            <GridEditor widgets={widgets} setWidgets={setWidgets} />
+                            <GridEditor widgets={widgets} setWidgets={updateWidgets} ydoc={ydoc} awareness={awareness} />
                         </div>
 
                     </div>

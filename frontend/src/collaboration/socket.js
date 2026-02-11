@@ -2,23 +2,33 @@ import io from 'socket.io-client';
 
 let socket = null;
 
-export const initSocket = (url, docId) => {
+// Use explicit port 5001 or environment variable
+const BACKEND_URL = "http://localhost:5001";
+
+export const initSocket = (docId) => {
   if (socket) return socket;
 
-  socket = io(url, { query: { docId } });
+  socket = io(BACKEND_URL, {
+    transports: ['websocket'],
+    query: { docId }
+  });
+
+  socket.on("connect", () => {
+    console.log("Socket connected:", socket.id);
+  });
+
+  socket.on("connect_error", (err) => {
+    console.error("Socket connection error:", err);
+  });
 
   return socket;
 };
 
-export const emitUpdate = (docId, update) => {
-  socket?.emit('sync:update', {
-    docId,
-    update: Array.from(update),
-  });
-};
+export const getSocket = () => socket;
 
-export const onUpdate = (docId, cb) => {
-  socket?.on(`sync:update:${docId}`, ({ update, clientId }) => {
-    cb(new Uint8Array(update), clientId);
-  });
+export const disconnectSocket = () => {
+  if (socket) {
+    socket.disconnect();
+    socket = null;
+  }
 };

@@ -33,13 +33,7 @@ export default function StartPage() {
         dark:bg-black dark:text-black
       "
     >
-      <style>
-        {`
-          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Outfit:wght@700;800&display=swap');
-          @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css");
 
-        `}
-      </style>
 
       <button
         onClick={() => setIsDark(!isDark)}
@@ -56,7 +50,7 @@ export default function StartPage() {
 
       <section className="relative z-10 min-h-screen flex items-center justify-center px-6">
         <div
-          style={{borderRadius:"10px"}}
+          style={{ borderRadius: "10px" }}
           className="
             relative max-w-3xl w-full p-[1px] rounded-2xl
             bg-slate-200 dark:bg-gray-800
@@ -64,7 +58,7 @@ export default function StartPage() {
           "
         >
           <div
-            style={{borderRadius:"10px"}}
+            style={{ borderRadius: "10px" }}
             className="
               rounded-2xl px-8 sm:px-12 py-20 text-center
               shadow-2xl shadow-slate-200/50 dark:shadow-black/30
@@ -84,13 +78,13 @@ export default function StartPage() {
             </h1>
 
             <p className="text-lg md:text-xl max-w-lg mx-auto mb-12 leading-relaxed text-slate-600 dark:text-gray-400">
-              A minimalist space to document your journey, 
+              A minimalist space to document your journey,
               explore new perspectives, and share stories.
             </p>
 
             <button
               onClick={() => navigate("/login")}
-              style={{borderRadius:"10px"}}
+              style={{ borderRadius: "10px" }}
               className="
                 inline-flex items-center justify-center
                 px-10 py-4 rounded-2xl

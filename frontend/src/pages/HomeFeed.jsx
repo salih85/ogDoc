@@ -37,17 +37,17 @@ const DeleteConfirmationModal = ({ show, onClose, onConfirm, postTitle }) => {
 
 export default function HomeFeed() {
 
- 
+
   const [posts, setPosts] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [postToDeleteId, setPostToDeleteId] = useState(null);
-  const [postToDeleteTitle, setPostToDeleteTitle] = useState(''); 
+  const [postToDeleteTitle, setPostToDeleteTitle] = useState('');
 
-   const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const editPost = (postId) => {
-  navigate(`/edit/${postId}`);
-};
+    navigate(`/edit/${postId}`);
+  };
 
   const deletePost = async (postId, postTitle) => {
     setPostToDeleteId(postId);
@@ -60,14 +60,14 @@ export default function HomeFeed() {
 
     try {
       let res = await api.get(`/api/blog/deleteblog/${postToDeleteId}`)
-      setPosts(posts.filter(item => item._id !== postToDeleteId)); 
+      setPosts(posts.filter(item => item._id !== postToDeleteId));
       console.log("Post deleted.");
       setShowDeleteModal(false);
       setPostToDeleteId(null);
       setPostToDeleteTitle('');
     } catch (e) {
       console.error('error deleting post', e);
-      setShowDeleteModal(false); 
+      setShowDeleteModal(false);
     }
   };
 
@@ -114,9 +114,6 @@ export default function HomeFeed() {
 
       <style>
         {`
-          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Outfit:wght@700;800&display=swap');
-          @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css");
-
           a { text-decoration: none !important; }
         `}
       </style>
@@ -128,20 +125,20 @@ export default function HomeFeed() {
         </h2>
         <div className="flex items-center gap-6">
           <button
-  onClick={async () => {
-    try {
-      const res = await api.post('/api/blog/create-draft');
-      const newId = res.data.blog._id;
+            onClick={async () => {
+              try {
+                const res = await api.post('/api/blog/create-draft');
+                const newId = res.data.blog._id;
 
-      navigate(`/create/${newId}`);
-    } catch (e) {
-      console.error("Error creating draft:", e);
-    }
-  }}
-  className="px-5 py-2 rounded-lg bg-slate-900 dark:bg-gray-600 text-white dark:text-white text-xs uppercase tracking-widest font-bold hover:opacity-80 transition-all active:scale-95"
->
-  Write
-</button>
+                navigate(`/create/${newId}`);
+              } catch (e) {
+                console.error("Error creating draft:", e);
+              }
+            }}
+            className="px-5 py-2 rounded-lg bg-slate-900 dark:bg-gray-600 text-white dark:text-white text-xs uppercase tracking-widest font-bold hover:opacity-80 transition-all active:scale-95"
+          >
+            Write
+          </button>
           <button
             onClick={() => setIsDark(!isDark)}
             className="text-[10px] uppercase tracking-[0.2em] font-bold text-slate-400 dark:text-gray-400 hover:text-slate-900 dark:hover:text-gray-300 transition-colors"
@@ -191,7 +188,7 @@ export default function HomeFeed() {
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      deletePost(post._id, post.title); 
+                      deletePost(post._id, post.title);
                     }}
                     title="Delete Post"
                   ></i>

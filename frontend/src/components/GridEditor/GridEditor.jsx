@@ -41,7 +41,7 @@ const useContainerWidth = () => {
 };
 
 
-const GridEditor = ({ widgets, setWidgets, readOnly = false }) => {
+const GridEditor = ({ widgets, setWidgets, readOnly = false, ydoc, awareness }) => {
     const { width, ref: containerRef } = useContainerWidth();
 
     const onLayoutStop = (layout) => {
@@ -145,8 +145,9 @@ const GridEditor = ({ widgets, setWidgets, readOnly = false }) => {
                                     content={widget.content}
                                     onChange={handleContentChange}
                                     readOnly={readOnly}
-                                />
-                            )}
+                                    ydoc={ydoc}
+                                    awareness={awareness}
+                                />)}
                             {widget.type === 'image' && (
                                 <ImageWidget url={widget.content} readOnly={readOnly} />
                             )}

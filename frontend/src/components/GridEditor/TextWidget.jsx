@@ -1,36 +1,73 @@
-import React from 'react';
-import ReactQuill from 'react-quill-new';
+import React, { useEffect, useRef } from 'react';
+import ReactQuill, { Quill } from 'react-quill-new';
 import 'quill/dist/quill.snow.css';
+import { QuillBinding } from 'y-quill';
+import QuillCursors from 'quill-cursors';
+
+
+Quill.register('modules/cursors', QuillCursors);
 
 // Custom toolbar options
 const modules = {
     toolbar: [
         [{ 'header': [1, 2, 3, false] }],
-        [{ 'align': [] }], 
+        [{ 'align': [] }],
         ['bold', 'italic', 'underline', 'strike', 'blockquote'],
         [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
-        ['link', 'clean'] 
+        ['link', 'clean']
     ],
+    cursors: true
 };
 
 const formats = [
-    'header', 'align', 
+    'header', 'align',
     'bold', 'italic', 'underline', 'strike', 'blockquote',
     'list', 'bullet', 'indent',
     'link'
 ];
 
-const TextWidget = ({ id, content, onChange, readOnly = false }) => {
+const TextWidget = ({ id, content, onChange, readOnly = false, ydoc, awareness }) => {
     const safeContent = Array.isArray(content) ? '' : content;
+    const quillRef = useRef(null);
+
+    useEffect(() => {
+        if (!ydoc || !quillRef.current || !awareness) {
+            console.log(`TextWidget ${id}: Waiting for dependencies...`, { ydoc: !!ydoc, quillRef: !!quillRef.current, awareness: !!awareness });
+            return;
+        }
+
+        const quillInstance = quillRef.current.getEditor();
+        const ytext = ydoc.getText(id);
+
+        console.log(`✅ Binding Yjs to TextWidget ${id}...`);
+        console.log(`   - Y.Text initial content:`, ytext.toString());
+        console.log(`   - Quill initial content:`, quillInstance.getText());
+
+        // Bind Yjs to Quill with support for Awareness (cursors)
+        const binding = new QuillBinding(ytext, quillInstance, awareness);
+
+        // Add listener to track Y.Text changes
+        const ytextObserver = () => {
+            console.log(`📝 Y.Text changed for widget ${id}:`, ytext.toString());
+        };
+        ytext.observe(ytextObserver);
+
+        return () => {
+            console.log(`🔴 Destroying binding for TextWidget ${id}`);
+            ytext.unobserve(ytextObserver);
+            binding.destroy();
+        };
+    }, [ydoc, id, awareness]);
 
     return (
         <div className="h-full w-full flex flex-col bg-white dark:bg-gray-300 text-slate-900 dark:text-gray-900 overflow-hidden"
             style={{ cursor: 'text' }}
-            onMouseDown={(e) => e.stopPropagation()} 
+            onMouseDown={(e) => e.stopPropagation()}
         >
             <ReactQuill
+                ref={quillRef}
                 theme="snow"
-                value={safeContent}
+                defaultValue={safeContent}
                 onChange={(val) => onChange(id, val)}
                 modules={readOnly ? { toolbar: false } : modules}
                 formats={formats}

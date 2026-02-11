@@ -1,7 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const connectDB = require("./config/db"); 
+const connectDB = require("./config/db");
 
 const authRoutes = require("./routes/authRoutes");
 const blogRoutes = require("./routes/blogRoutes");
@@ -17,11 +17,11 @@ const http = require("http")
 const initSocket = require("./socket");
 
 const limiter = rateLimit({
-	windowMs: 15 * 60 * 1000, 
-	limit: 100, 
-	standardHeaders: 'draft-8', 
-	legacyHeaders: false, 
-	ipv6Subnet: 56, 
+	windowMs: 15 * 60 * 1000,
+	limit: 100,
+	standardHeaders: 'draft-8',
+	legacyHeaders: false,
+	ipv6Subnet: 56,
 })
 
 app.use(limiter)
@@ -29,10 +29,10 @@ app.use(limiter)
 app.use(helmet())
 
 app.use(
-  cors({
-    origin: ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175",process.env.FRONTEND_URL,process.env.LIBRARY_URL],
-    credentials:true
-  })
+	cors({
+		origin: ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175", process.env.FRONTEND_URL, process.env.LIBRARY_URL],
+		credentials: true
+	})
 );
 
 app.use(express.json());
@@ -45,9 +45,10 @@ app.use("/api", blogRoutes);
 
 if (require.main === module) {
 
-const server = http.createServer(app);
-initSocket(server);
+	const server = http.createServer(app);
+	initSocket(server);
 
-server.listen(PORT, () => console.log(`Server running on ${PORT}`));
+	console.log(`Attempting to listen on port ${PORT}`);
+	server.listen(PORT, () => console.log(`Server running on ${PORT}`));
 }
 module.exports = app;
