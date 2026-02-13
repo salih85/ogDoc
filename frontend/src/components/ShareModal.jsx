@@ -57,14 +57,14 @@ const ShareModal = ({ open, onClose, docId }) => {
         </div> */}
 
         {/* Active Collaborators */}
-        <div className="mb-6 pb-6 border-b border-slate-200 dark:border-gray-700">
+        {/* <div className="mb-6 pb-6 border-b border-slate-200 dark:border-gray-700">
           <label className="text-sm text-slate-600 dark:text-gray-400 mb-2 block">
             Active collaborators
           </label>
           <div className="text-sm text-slate-600 dark:text-gray-400">
             <p>Connect to server to see live collaborators</p>
           </div>
-        </div>
+        </div> */}
 
         {/* Actions */}
         <div className="flex justify-end gap-2">

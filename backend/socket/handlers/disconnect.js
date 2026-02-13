@@ -1,7 +1,8 @@
 const { leaveRoom, rooms } = require("../rooms");
-const { saveSnapshot, docs } = require("../../collaboration/persistence/saveSnapshot");
+const { saveSnapshot } = require("../../collaboration/persistence/saveSnapshot");
+const { docs } = require("../../collaboration/yjs/createDoc");
 
-const disconnect = async (socket) => {
+const disconnect = async (io, socket) => {
   rooms.forEach(async (socketsSet, blogId) => {
     if (socketsSet.has(socket.id)) {
       leaveRoom(blogId, socket);
@@ -11,7 +12,7 @@ const disconnect = async (socket) => {
         const ydoc = docs.get(blogId);
         if (ydoc) {
           await saveSnapshot(blogId, ydoc);
-          docs.delete(blogId);
+          // Note: docs.delete(blogId) should probably happen here if we want to free memory
         }
       }
     }

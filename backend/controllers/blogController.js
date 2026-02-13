@@ -73,9 +73,9 @@ exports.getUserBlogs = async (req, res) => {
     }
 
     const userBlogs = await Blog.find({
-  author: userId,
-  published: true
-})
+      author: userId,
+      published: true
+    })
 
     if (!userBlogs) {
       return res.status(401).json({ message: "no blogs found" })
@@ -107,7 +107,7 @@ exports.deleteUserPost = async (req, res) => {
 
     if (result.deletedCount === 1) {
       res.status(200).json({ message: "Successfully deleted the blog post." })
-    } 
+    }
     else {
       console.log("No post found with that ID or you are not the author.");
       res.status(401).json({ message: "No post found with that ID or you are not the author." })
@@ -168,11 +168,11 @@ exports.updateBlog = async (req, res) => {
     const userId = req.user._id;
 
     const blog = await Blog.findOneAndUpdate(
-      { _id: blogId, author: userId },
+      { _id: blogId },
       {
         title,
         content,
-        published: published ?? false 
+        published: published ?? false
       },
       { new: true }
     );

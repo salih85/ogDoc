@@ -8,7 +8,9 @@ import { v4 as uuidv4 } from 'uuid';
 import * as Y from 'yjs';
 import { initSocket, disconnectSocket, getSocket } from '../collaboration/socket';
 import { Awareness, encodeAwarenessUpdate, applyAwarenessUpdate } from 'y-protocols/awareness';
-
+import VideoCallPanel from '../components/VideoCallPanel';
+import IncomingCallModal from "../components/IncomingCallModal";
+import OutgoingCallModal from "../components/OutgoingCallModal";
 
 
 const initialWidgets = [
@@ -46,6 +48,40 @@ const ToolbarIcon = ({ children }) => (
 
 // --- MAIN COMPONENT ---
 const CreatePost = () => {
+    const [socket, setSocket] = useState(null);
+
+    const [incomingCall, setIncomingCall] = useState(null);
+    const [outgoingCall, setOutgoingCall] = useState(null);
+    const [callAccepted, setCallAccepted] = useState(false);
+
+    const acceptCall = () => {
+        if (!socket || !incomingCall) return;
+
+        socket.emit("call:accept", {
+            to: incomingCall.from,
+            blogId: docId,
+        });
+        socket.emit("call:join", docId);
+        setCallAccepted(true);
+        setIncomingCall(null);
+    };
+
+    const declineCall = () => {
+        if (!socket || !incomingCall) return;
+
+        socket.emit("call:decline", {
+            to: incomingCall.from,
+        });
+
+        setIncomingCall(null);
+    };
+
+    const cancelCall = () => {
+        if (!socket || !outgoingCall) return;
+        socket.emit("call:decline", { to: outgoingCall.socketId }); // Using decline as a generic signal to end
+        setOutgoingCall(null);
+    };
+
     const { id } = useParams();
     const isCreateMode = !id;
     const [docId, setDocId] = useState(id || null);
@@ -130,6 +166,35 @@ const CreatePost = () => {
         };
     }, []);
 
+    useEffect(() => {
+        if (!socket) return;
+
+        socket.on("call:incoming", (data) => {
+            setIncomingCall(data);
+        });
+
+        socket.on("call:accepted", () => {
+            setCallAccepted(true);
+            setOutgoingCall(null);
+        });
+
+        socket.on("call:declined", () => {
+            alert("Call rejected");
+            setOutgoingCall(null);
+        });
+
+        return () => {
+            socket.off("call:incoming");
+            socket.off("call:accepted");
+            socket.off("call:declined");
+        };
+    }, [socket]);
+
+    useEffect(() => {
+        console.log("📞 incomingCall =", incomingCall);
+    }, [incomingCall]);
+
+
     // Initialize Yjs and Socket when docId is available
     useEffect(() => {
         if (!docId) return;
@@ -143,8 +208,10 @@ const CreatePost = () => {
         setAwareness(awarenessInstance);
 
         const socket = initSocket(docId);
+        setSocket(socket);
 
         socket.emit("doc:join", docId);
+
 
         socket.on("doc:sync", (update) => {
             console.log("Received doc:sync, applying update...");
@@ -197,7 +264,7 @@ const CreatePost = () => {
 
         // Sync Widgets Array
         widgetsArray.observe((event) => {
-            if (event.transaction.origin === 'local') return; // Ignore local changes to avoid loops
+            if (event.transaction.origin === 'local') return;
             setWidgets(widgetsArray.toArray());
         });
 
@@ -214,12 +281,6 @@ const CreatePost = () => {
 
         if (!yWidgets) return;
 
-        // Optimization: Prevent frequent Y.Array updates for text content changes
-        // because y-quill handles text synchronization separately.
-        // We only want to sync to Y.Array if:
-        // 1. Widget count changed (added/removed)
-        // 2. Layout changed (moved/resized)
-        // 3. Non-text content changed (image/video)
 
         const shouldSync = () => {
             if (newWidgets.length !== widgets.length) return true;
@@ -350,6 +411,7 @@ const CreatePost = () => {
 
 
 
+
     const handleSave = async () => {
         console.log('🚀 Publish button clicked');
 
@@ -455,6 +517,35 @@ const CreatePost = () => {
                     </button>
 
                     <button
+                        disabled={collaborators.length < 2}
+                        onClick={() => {
+                            const otherUsers = collaborators.filter(
+                                c => c.socketId && c.socketId !== socket.id
+                            );
+
+                            if (otherUsers.length === 0) {
+                                alert("No other collaborators online");
+                                return;
+                            }
+
+
+                            otherUsers.forEach(user => {
+                                socket.emit("call:invite", {
+                                    blogId: docId,
+                                    to: user.socketId,
+                                });
+                            });
+
+                            setOutgoingCall(otherUsers[0]);
+                        }}
+                        className="px-4 py-2 rounded bg-green-600 text-white text-xs uppercase font-bold"
+                    >
+                        📹 Start Call
+                    </button>
+
+
+
+                    <button
                         onClick={handleSave}
                         className="px-6 py-2 rounded bg-slate-900 dark:bg-gray-600 text-slate-50 dark:text-white text-xs uppercase tracking-widest font-bold hover:opacity-90 transition-all active:scale-95"
                     >
@@ -529,7 +620,34 @@ const CreatePost = () => {
                 onClose={() => setShareOpen(false)}
                 docId={docId}
             />
+            {incomingCall && (
+                <IncomingCallModal
+                    caller={incomingCall}
+                    onAccept={acceptCall}
+                    onDecline={declineCall}
+                />
+            )}
+
+            {outgoingCall && (
+                <OutgoingCallModal
+                    callee={outgoingCall}
+                    onCancel={cancelCall}
+                />
+            )}
+
+            {callAccepted && (
+                <VideoCallPanel
+                    socket={socket}
+                    blogId={docId}
+                    onLeave={() => {
+                        setCallAccepted(false);
+                        setIncomingCall(null);
+                    }}
+                />
+            )}
+
         </div>
+
     )
 }
 

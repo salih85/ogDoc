@@ -22,8 +22,7 @@ const Y = require("yjs");
 
 const saveSnapshot = async (blogId, ydoc) => {
   const snapshot = Y.encodeStateAsUpdate(ydoc);
-  await Blog.findByIdAndUpdate(blogId, { collabSnapshot: snapshot });
-
+  await Blog.findByIdAndUpdate(blogId, { collabSnapshot: Buffer.from(snapshot) });
 };
 
 module.exports = { saveSnapshot };
