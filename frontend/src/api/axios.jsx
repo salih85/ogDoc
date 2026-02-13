@@ -47,7 +47,7 @@ api.interceptors.response.use(
         console.log("Axios Interceptor: Sending Refresh Request...");
         const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/refresh`, {
           refreshToken,
-        });
+        }, { withCredentials: true });
 
         console.log("Axios Interceptor: Refresh Successful. New Access Token received.");
         const { accessToken } = res.data;
