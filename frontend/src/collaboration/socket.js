@@ -3,7 +3,7 @@ import io from 'socket.io-client';
 let socket = null;
 
 // Use explicit port 5001 or environment variable
-const BACKEND_URL = "http://localhost:5001";
+const BACKEND_URL = "https://ogdoc.onrender.com";
 
 export const initSocket = (docId) => {
   if (socket) return socket;
