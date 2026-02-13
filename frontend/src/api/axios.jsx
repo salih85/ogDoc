@@ -1,10 +1,13 @@
 import axios from "axios";
 import secureLocalStorage from "react-secure-storage";
 
+const baseURL = import.meta.env.VITE_BACKEND_URL || "https://ogdoc.onrender.com";
+console.log("Axios initialized with baseURL:", baseURL);
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_BACKEND_URL,
-  withCredentials:true
-}); 
+  baseURL,
+  withCredentials: true
+});
 
 // Request Interceptor: Attach Access Token
 api.interceptors.request.use(

@@ -124,40 +124,60 @@ const CreatePost = () => {
 
         const fetchPost = async () => {
             try {
-                const res = await api.get(`/api/blog/${id}`);
-                setTitle(res.data.blog.title);
+                const url = `/api/blog/${id}`;
+                console.log(`🔍 Fetching blog from: ${api.defaults.baseURL}${url}`);
+                const res = await api.get(url);
 
-                const loadedContent = res.data.blog.content;
+                if (res.data && res.data.blog) {
+                    setTitle(res.data.blog.title);
+                    const loadedContent = res.data.blog.content;
 
-                if (Array.isArray(loadedContent) && loadedContent.length > 0) {
-                    if (loadedContent[0].layout && loadedContent[0].id) {
-                        const fixedWidgets = loadedContent.map(w => ({
-                            ...w,
-                            layout: {
-                                ...w.layout,
-                                y: typeof w.layout.y === "number" ? w.layout.y : Infinity
-                            }
-                        }));
-                        setWidgets(fixedWidgets);
+                    if (Array.isArray(loadedContent) && loadedContent.length > 0) {
+                        if (loadedContent[0].layout && loadedContent[0].id) {
+                            const fixedWidgets = loadedContent.map(w => ({
+                                ...w,
+                                layout: {
+                                    ...w.layout,
+                                    y: typeof w.layout.y === "number" ? w.layout.y : Infinity
+                                }
+                            }));
+                            setWidgets(fixedWidgets);
+                        } else {
+                            setWidgets([{
+                                id: uuidv4(),
+                                type: 'text',
+                                content: '<p><em>(Legacy Post Content)</em></p>',
+                                layout: { x: 0, y: 0, w: 12, h: 20 }
+                            }]);
+                        }
                     } else {
-                        setWidgets([{
-                            id: uuidv4(),
-                            type: 'text',
-                            content: '<p><em>(Legacy Post Content)</em></p>',
-                            layout: { x: 0, y: 0, w: 12, h: 20 }
-                        }]);
+                        setWidgets(initialWidgets);
                     }
                 } else {
+                    console.warn("⚠️ Blog data is missing in response", res.data);
                     setWidgets(initialWidgets);
                 }
-
-                setLoading(false);
             } catch (err) {
-                console.error("Failed to load blog", err);
+                console.error("❌ Failed to load blog:", err);
+                if (err.response) {
+                    console.error("   Status:", err.response.status);
+                    console.error("   Data:", err.response.data);
+
+                    if (err.response.status === 404) {
+                        alert("The requested blog post was not found (404). Redirecting to home.");
+                        navigate("/home");
+                        return; // Don't set loading to false here as we are navigating
+                    }
+                } else {
+                    console.error("   Message:", err.message);
+                    alert("Network error: Could not connect to the backend server.");
+                }
+            } finally {
+                setLoading(false);
             }
         };
         fetchPost();
-    }, [id, isEditMode]);
+    }, [id, isEditMode, navigate]);
 
     // Cleanup socket on unmount
     useEffect(() => {
