@@ -6,6 +6,7 @@ const {
     getBlog,
     getUserBlogs,
     deleteUserPost,
+    getBlogById,
     updateBlog,
     createDraft,
     shareBlog,
