@@ -15,7 +15,6 @@ const PORT = process.env.PORT || 3000;
 app.use(
 	cors({
 		origin: (origin, callback) => {
-			// Allow requests with no origin (like mobile apps or curl)
 			if (!origin) return callback(null, true);
 
 			const allowedOrigins = [
@@ -24,18 +23,12 @@ app.use(
 				"http://localhost:5175",
 				process.env.FRONTEND_URL,
 				"https://og-doc.vercel.app",
-				"https://ogdoc-1.onrender.com",
-				"https://ogdoc-backend.onrender.com"
 			];
 
-			// Check if origin is in allowed list or matches patterns
-			const isAllowed = allowedOrigins.some(ao => {
-				if (!ao) return false;
-				return ao.replace(/\/$/, '').toLowerCase() === origin.replace(/\/$/, '').toLowerCase();
-			}) ||
-				/\.onrender\.com$/.test(origin) ||
-				/\.ngrok-free\.(app|dev)$/.test(origin) ||
-				/\.vercel\.app$/.test(origin);
+			const isAllowed = allowedOrigins.some(ao => ao && ao.replace(/\/$/, '').toLowerCase() === origin.replace(/\/$/, '').toLowerCase()) ||
+				origin.endsWith(".onrender.com") ||
+				origin.includes("ngrok-free") ||
+				origin.endsWith(".vercel.app");
 
 			if (isAllowed) {
 				callback(null, true);
