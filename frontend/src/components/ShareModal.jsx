@@ -7,11 +7,6 @@ const ShareModal = ({ open, onClose, docId }) => {
   const [role, setRole] = useState('view');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
-
-  if (!open) return null;
-
-  const shareLink = `${window.location.origin}/create/${docId}`;
-
   const [collaborators, setCollaborators] = useState([]);
 
   const isAuthor = React.useMemo(() => {
@@ -73,11 +68,15 @@ const ShareModal = ({ open, onClose, docId }) => {
     }
   };
 
+  const shareLink = `${window.location.origin}/create/${docId}`;
+
   const handleCopyLink = () => {
     navigator.clipboard.writeText(shareLink);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  if (!open) return null;
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
