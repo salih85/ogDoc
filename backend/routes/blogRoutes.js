@@ -8,11 +8,12 @@ const router = express.Router();
 router.get("/viewblog/:slug", getBlog);
 
 router.post("/blog/postblog", protect, addBlog);
-router.get("/blog/user-blogs", protect, getUserBlogs)
-router.get("/blog/deleteblog/:postId", protect, deleteUserPost)
-router.get("/blog/:postId", getBlogById)
+router.post("/blog/share-post/:postId", protect, shareBlog);
+router.get("/blog/user-blogs", protect, getUserBlogs);
+router.get("/blog/deleteblog/:postId", protect, deleteUserPost);
+router.get("/blog/:postId", getBlogById);
 router.post("/blog/updateblog/:postId", protect, updateBlog);
-router.post("/blog/create-draft", protect, createDraft)
-router.post("/blog/share/:postId", protect, shareBlog);
+router.post("/blog/create-draft", protect, createDraft);
+
 
 module.exports = router;

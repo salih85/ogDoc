@@ -26,7 +26,7 @@ const ShareModal = ({ open, onClose, docId }) => {
     setMessage({ text: '', type: '' });
 
     try {
-      const response = await api.post(`/api/blog/share/${docId}`, { email, role });
+      const response = await api.post(`/api/blog/share-post/${docId}`, { email, role });
       setMessage({ text: response.data.message || 'Invitation sent!', type: 'success' });
       setEmail('');
     } catch (error) {

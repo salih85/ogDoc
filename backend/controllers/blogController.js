@@ -207,11 +207,11 @@ exports.createDraft = async (req, res) => {
     slug: slugify(`draft-${Date.now()}`, { lower: true }),
     content: []
   })
-
   res.json({ blog })
 }
 
 exports.shareBlog = async (req, res) => {
+  console.log("Sharing blog route hit!", { blogId: req.params.postId, email: req.body.email });
   try {
     const { email, role } = req.body;
     const blogId = req.params.postId;
