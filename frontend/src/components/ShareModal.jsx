@@ -26,11 +26,18 @@ const ShareModal = ({ open, onClose, docId }) => {
     setMessage({ text: '', type: '' });
 
     try {
+      const fullUrl = `${api.defaults.baseURL}/api/blog/share-post/${docId}`;
+      console.log('🚀 Calling Share API at:', fullUrl);
       const response = await api.post(`/api/blog/share-post/${docId}`, { email, role });
       setMessage({ text: response.data.message || 'Invitation sent!', type: 'success' });
       setEmail('');
     } catch (error) {
-      console.error('Share error:', error);
+      console.error('Share error details:', {
+        url: error.config?.url,
+        method: error.config?.method,
+        status: error.response?.status,
+        data: error.response?.data
+      });
       setMessage({
         text: error.response?.data?.message || 'Failed to send invitation',
         type: 'error'
