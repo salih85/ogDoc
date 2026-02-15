@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 const ICE = {
   iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+  iceCandidatePoolSize: 10,
 };
 
 export default function useVideoCall(socket, blogId, onLeave) {
@@ -121,11 +122,19 @@ export default function useVideoCall(socket, blogId, onLeave) {
 
     pc.onicecandidate = (e) => {
       if (e.candidate) {
+        console.log("📡 Sending ICE Candidate to:", socketId);
         socket.emit("call:signal", {
           to: socketId,
           blogId,
           signal: { candidate: e.candidate },
         });
+      }
+    };
+
+    pc.oniceconnectionstatechange = () => {
+      console.log(`🧊 ICE State for ${socketId}:`, pc.iceConnectionState);
+      if (pc.iceConnectionState === "failed" || pc.iceConnectionState === "disconnected") {
+        console.warn("⚠️ WebRTC connection failed, might need a relay (TURN). Using Google STUN for now.");
       }
     };
 

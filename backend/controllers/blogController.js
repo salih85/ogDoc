@@ -78,9 +78,10 @@ exports.getUserBlogs = async (req, res) => {
       $or: [
         { author: userId },
         { 'collaborators.email': req.user.email }
-      ],
-      published: true
+      ]
     })
+      .populate('author', 'name email picture') // Added populate
+      .sort({ updatedAt: -1 });
 
     if (!userBlogs) {
       return res.status(401).json({ message: "no blogs found" })

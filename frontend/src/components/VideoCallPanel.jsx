@@ -1,4 +1,30 @@
+import React, { useEffect, useRef } from 'react';
 import useVideoCall from "../hooks/useVideoCall";
+
+const RemoteVideo = ({ stream, index }) => {
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    if (videoRef.current && stream) {
+      videoRef.current.srcObject = stream;
+    }
+  }, [stream]);
+
+  return (
+    <div className="relative aspect-video bg-slate-950 rounded-xl overflow-hidden shadow-2xl border border-white/10 group">
+      <video
+        ref={videoRef}
+        autoPlay
+        playsInline
+        className="w-full h-full object-cover"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+      <div className="absolute bottom-1.5 left-2 px-1.5 py-0.5 bg-white/10 backdrop-blur-md rounded text-[9px] text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+        User {index + 1}
+      </div>
+    </div>
+  );
+};
 
 const VideoCallPanel = ({ socket, blogId, onLeave }) => {
   const {
@@ -18,18 +44,7 @@ const VideoCallPanel = ({ socket, blogId, onLeave }) => {
       {remoteStreams.length > 0 && (
         <div className={`grid gap-2 ${remoteStreams.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
           {remoteStreams.map((stream, i) => (
-            <div key={i} className="relative aspect-video bg-slate-950 rounded-xl overflow-hidden shadow-2xl border border-white/10 group">
-              <video
-                autoPlay
-                playsInline
-                ref={(v) => v && (v.srcObject = stream)}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
-              <div className="absolute bottom-1.5 left-2 px-1.5 py-0.5 bg-white/10 backdrop-blur-md rounded text-[9px] text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
-                User {i + 1}
-              </div>
-            </div>
+            <RemoteVideo key={stream.id || i} stream={stream} index={i} />
           ))}
         </div>
       )}

@@ -253,9 +253,15 @@ export default function HomeFeed() {
                 <div className="flex flex-col h-full gap-6">
                   <div className="flex justify-between items-start">
                     <div className="flex flex-col gap-2">
-                      <span className="px-3 py-1 w-fit rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-[10px] font-black tracking-widest uppercase border border-blue-100 dark:border-blue-900/30">
-                        Story
-                      </span>
+                      {post.author?._id === JSON.parse(localStorage.getItem('user'))?._id ? (
+                        <span className="px-3 py-1 w-fit rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-[10px] font-black tracking-widest uppercase border border-blue-100 dark:border-blue-900/30">
+                          My Story
+                        </span>
+                      ) : (
+                        <span className="px-3 py-1 w-fit rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 text-[10px] font-black tracking-widest uppercase border border-purple-100 dark:border-purple-900/30">
+                          Shared
+                        </span>
+                      )}
                       <div className="text-[10px] font-black text-slate-400 dark:text-gray-500 uppercase tracking-widest flex items-center gap-2">
                         <span>{new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                         <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-gray-700"></span>
@@ -274,17 +280,19 @@ export default function HomeFeed() {
                       >
                         <i className="bi bi-pencil-square text-lg"></i>
                       </button>
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          deletePost(post._id, post.title);
-                        }}
-                        className="p-2 rounded-xl bg-slate-50 dark:bg-white/5 text-slate-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-white dark:hover:bg-white/10 transition-all"
-                        title="Delete Post"
-                      >
-                        <i className="bi bi-trash3 text-lg"></i>
-                      </button>
+                      {post.author?._id === JSON.parse(localStorage.getItem('user'))?._id && (
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            deletePost(post._id, post.title);
+                          }}
+                          className="p-2 rounded-xl bg-slate-50 dark:bg-white/5 text-slate-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-white dark:hover:bg-white/10 transition-all"
+                          title="Delete Post"
+                        >
+                          <i className="bi bi-trash3 text-lg"></i>
+                        </button>
+                      )}
                     </div>
                   </div>
 
